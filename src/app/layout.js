@@ -1,6 +1,13 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { PrimeReactProvider } from 'primereact/api';
+// Estilos de PrimeReact
+import 'primereact/resources/themes/lara-dark-cyan/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -10,8 +17,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <PrimeReactProvider>
+      <html lang="en">
+        <body className={inter.className}>{children}</body>
+      </html>
+    </PrimeReactProvider>
   );
 }
