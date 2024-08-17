@@ -17,13 +17,20 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: 'var(--font-family)', sans-serif; 
+  font-weight: normal;
+  background: var(--surface-ground); 
+  color: var(--text-color); 
+  padding: 1rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.card {
+  background: var(--surface-card); 
+  padding: 2rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
 }
 
 @layer utilities {

@@ -6,7 +6,7 @@ import { PrimeReactProvider } from 'primereact/api';
 import 'primereact/resources/themes/lara-dark-cyan/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
-
+import 'primeflex/primeflex.css';
 
 const inter = Inter({ subsets: ["latin"] });
 
