@@ -4,16 +4,18 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import S3Service from "@/service/s3Service";
+import { FileUpload } from 'primereact/fileupload';
 
 export default function ButtonDemo() {
     const [folderPath, setFolderPath] = useState("");
     const toast = useRef(null);
     const [exist, setExist] = useState(false);
 
+
     const [summary, setSummary] = useState("");
     const [title, setTitle] = useState("");
     const [button, setButton] = useState("");
-    const [showConfirm, setShowConfirm] = useState(false); // Nuevo estado
+    const [showConfirm, setShowConfirm] = useState(false); 
 
     const existFolder = async () => {
         clear();
@@ -96,7 +98,7 @@ export default function ButtonDemo() {
                         </div>
                         <div className="font-medium text-lg my-3 text-800">{props.message.summary}</div>
                         <div className="flex justify-between w-full">
-                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? none : createFolder}></Button>
+                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? () => {} : createFolder}></Button>
                             <Button className="p-button-sm w-full ml-2 p-button-danger" label="Cancelar" severity="error" onClick={clear}></Button>
                         </div>
 
@@ -139,10 +141,44 @@ export default function ButtonDemo() {
         }
     }
 
+    // Enviar hojas de calculo al servicio
+    const Upload = async (event) => {
+        try {
+            const files = event.files; // Obtiene los archivos seleccionados
+            const response = await S3Service.uploadSpreadsheetFiles(files, folderPath);
+    
+            if (response.success) {
+                toast.current.show({
+                    severity: "success",
+                    summary: "Archivos subidos",
+                    detail: "Los archivos han sido subidos correctamente.",
+                    life: 3000,
+                });
+            } else {
+                toast.current.show({
+                    severity: "error",
+                    summary: "Error al subir archivos",
+                    detail: response.message,
+                    life: 3000,
+                });
+            }
+        } catch (error) {
+            console.error("Error al subir los archivos:", error);
+            toast.current.show({
+                severity: "error",
+                summary: "Error al subir archivos",
+                detail: "Ha ocurrido un error al subir los archivos.",
+                life: 3000,
+            });
+        }
+    };
+    
+    
+
     return (
         <>
             <div className="card flex flex-column md:flex-row gap-5 max-w-xs w-full p-4">
-                <Toast ref={toast} /> {/* Uso correcto del componente Toast */}
+                <Toast ref={toast} /> 
                 <div className="p-inputgroup flex-1">
                     <InputText
                         placeholder="Folder Path"
@@ -155,6 +191,21 @@ export default function ButtonDemo() {
                         onClick={existFolder}
                     />
                 </div>
+            </div>
+
+            <div className="card">
+                <FileUpload 
+                    name="demo[]" 
+                    customUpload 
+                    uploadHandler={Upload}
+                    multiple 
+                    accept=".xls,.xlsx,.csv"
+                    emptyTemplate={<p className="m-0 text-sm">Arrastra y suelta los archivos aquí para subirlos.</p>} 
+                    className="p-2"
+                    chooseOptions={{ className: 'p-button-sm py-2 px-3 text-sm' }}
+                    uploadOptions={{ className: 'p-button-sm py-2 px-3 text-sm' }}
+                    cancelOptions={{ className: 'p-button-sm py-2 px-3 text-sm' }}
+                />
             </div>
 
 

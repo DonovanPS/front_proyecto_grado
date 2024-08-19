@@ -43,6 +43,33 @@ const S3Service = {
         }
     },
 
+    uploadSpreadsheetFiles: async (files, folderPath) => {
+        try {
+            const formData = new FormData();
+
+            // Añadir cada archivo a formData
+            files.forEach(file => {
+                formData.append('files', file);
+                formData.append('folder', folderPath);
+            });
+
+            const response = await fetch('/api/s3/upload', {
+                method: 'POST',
+                body: formData, // No se necesita 'Content-Type', Fetch API lo maneja automáticamente
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error in S3Service.uploadSpreadsheetFiles:', error);
+            throw error;
+        }
+    },
+
 }
 
 export default S3Service;
