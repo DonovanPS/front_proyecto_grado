@@ -24,7 +24,7 @@ export default function TableComponent() {
     const [selectedFileName, setSelectedFileName] = useState(''); // Nuevo estado para el nombre del archivo
 
     useEffect(() => {
-        S3Service.getFilesInFolder("demoo").then((data) => {
+        S3Service.getFilesInFolder("demo").then((data) => {
             setData(data.files);
             setLoading(false);
         });

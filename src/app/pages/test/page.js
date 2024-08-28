@@ -3,11 +3,18 @@ import React, { useState, useRef, useEffect } from "react";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
+
 import S3Service from "@/service/s3Service";
+import DataService from "@/service/dataService";
 import { FileUpload } from 'primereact/fileupload';
 import TableComponent from "@/components/table";
+import ComponentPredictionPraph from "@/components/prediction-praph";
+import Grid from '@mui/material/Unstable_Grid2';
+import { TextField } from "@mui/material";
 
-export default function ButtonDemo() {
+
+
+export default function Page() {
     const [folderPath, setFolderPath] = useState("");
     const toast = useRef(null);
     const [exist, setExist] = useState(false);
@@ -17,6 +24,12 @@ export default function ButtonDemo() {
     const [title, setTitle] = useState("");
     const [button, setButton] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
+
+    // Formulario para la predicción
+    const [description, setDescription] = useState('EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML');
+    const [periods, setPeriods] = useState(6);
+    const [predictionData, setPredictionData] = useState(null);
+
 
     const existFolder = async () => {
         clear();
@@ -176,6 +189,40 @@ export default function ButtonDemo() {
 
 
 
+    //Peticion para prediccion
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const folderPath = 'demo'; // Cambia esto 
+            const data = await DataService.getPrediction(folderPath, description, periods);
+            setPredictionData(data);
+        } catch (error) {
+            console.error('Error al obtener la predicción:', error);
+        }
+    };
+
+    const getOnlyPredictions = (data) => {
+        if (data && Array.isArray(data.predictions) && Array.isArray(data.historical_data)) {
+            const lastHistoricalValue = data.historical_data[data.historical_data.length - 1].y; // Obtiene el último valor del histórico
+
+            // Obtén los últimos `periods + 1` registros de las predicciones
+            const truncatedPredictions = data.predictions.slice(- (periods + 1));
+
+            // Reemplaza el primer valor de las predicciones truncadas con el último valor histórico
+            if (truncatedPredictions.length > 0) {
+                truncatedPredictions[0].yhat = lastHistoricalValue;
+            }
+
+            return truncatedPredictions;
+        }
+
+        return [];
+    };
+
+
+
+
     return (
         <>
             <div className="card flex flex-column md:flex-row gap-5 max-w-xs w-full p-4">
@@ -213,6 +260,110 @@ export default function ButtonDemo() {
             <Toast ref={toastBC} position="bottom-center" onRemove={clear} />
 
             <TableComponent />
+
+            <div className="card">
+                <Grid xs={12} md={6} lg={8}>
+                    <ComponentPredictionPraph
+                        title="Website Visits"
+                        subheader="(+43%) than last year"
+                        chart={{
+                            labels: [
+                                '01/01/2003',
+                                '02/01/2003',
+                                '03/01/2003',
+                                '04/01/2003',
+                                '05/01/2003',
+                                '06/01/2003',
+                                '07/01/2003',
+                                '08/01/2003',
+                                '09/01/2003',
+                                '10/01/2003',
+                                '11/01/2003',
+                            ],
+                            series: [
+                                {
+                                    name: 'Team A',
+                                    type: 'column',
+                                    fill: 'solid',
+                                    data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+                                },
+                                {
+                                    name: 'Team B',
+                                    type: 'area',
+                                    fill: 'gradient',
+                                    data: [46.49401232535094, 68.09160362430347, 83.59367773080442, 39.97422319809, 22, 43, 21, 41, 56, 27, 43],
+                                },
+                                {
+                                    name: 'Team C',
+                                    type: 'line',
+                                    fill: 'solid',
+                                    data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                                },
+                            ],
+                        }}
+                    />
+                </Grid>
+
+            </div>
+
+            
+    <div className="card ">
+        <form onSubmit={handleSubmit}>
+            <TextField
+                label="Descripción"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                fullWidth
+                margin="normal"
+            />
+            <TextField
+                label="Número de Períodos"
+                type="number"
+                value={periods}
+                onChange={(e) => setPeriods(Number(e.target.value))}
+                fullWidth
+                margin="normal"
+            />
+            <Button type="submit" variant="contained" color="primary">
+                Obtener Predicción
+            </Button>
+        </form>
+
+        {predictionData && (
+            <Grid xs={12} md={6} lg={8} className="mt-4">
+                <ComponentPredictionPraph
+                    title="Predicción de Visitas"
+                    subheader={`Basado en la descripción: ${description}`}
+                    chart={{
+                        labels: [
+                            ...predictionData.historical_data.map((item) => item.ds), // Etiquetas de datos históricos
+                            ...getOnlyPredictions(predictionData).slice(1).map((item) => item.ds), // Etiquetas de predicción, excluyendo la primera para evitar duplicación
+                        ],
+                        series: [
+                            {
+                                name: 'Histórico',
+                                type: 'line',
+                                fill: 'solid',
+                                data: [
+                                    ...predictionData.historical_data.map((item) => item.y), // Datos históricos
+                                ],
+                            },
+                            {
+                                name: 'Predicción',
+                                type: 'line',
+                                fill: 'solid',
+                                data: [
+                                    ...Array(predictionData.historical_data.length - 1).fill(null), // Espacio vacío para los datos históricos
+                                    ...getOnlyPredictions(predictionData).map((item) => item.yhat), // Datos de predicción completos
+                                ],
+                            },
+                        ],
+                    }}
+                />
+            </Grid>
+        )}
+    </div>
+
 
         </>
     );

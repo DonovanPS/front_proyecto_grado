@@ -1,5 +1,7 @@
 import { S3Client, ListObjectsV2Command, PutObjectCommand, GetObjectCommand   } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { read, utils } from 'xlsx';
+
 
 // Configuración del cliente S3
 const s3Client = new S3Client({
@@ -47,7 +49,7 @@ export const validFolder = async (folderPath) => {
     return {
       success: false,
       exists: false,
-      message: "AHa ocurrido un error al validar la existencia de la carpeta",
+      message: "Ha ocurrido un error al validar la existencia de la carpeta",
     };
   }
 };
@@ -186,6 +188,55 @@ export const listFilesInFolder = async (folderPath) => {
     return {
       success: false,
       message: "Ha ocurrido un error al listar los archivos en la carpeta",
+    };
+  }
+};
+
+
+export const getDescriptions = async (folderPath) => {
+  try {
+    if (!folderPath) {
+      throw new Error("Folder path is required");
+    }
+
+    const fileKey = `${folderPath}/consolidado_total.xlsx`;
+
+    // Obtener el archivo desde S3
+    const getObjectParams = {
+      Bucket: bucketName,
+      Key: fileKey,
+    };
+
+    const command = new GetObjectCommand(getObjectParams);
+    const response = await s3Client.send(command);
+
+    // Leer el archivo Excel del stream
+    const stream = response.Body;
+    const chunks = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk);
+    }
+    const buffer = Buffer.concat(chunks);
+
+    // Leer el contenido del archivo Excel
+    const workbook = read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0]; // Asumiendo que las descripciones están en la primera hoja
+    const sheet = workbook.Sheets[sheetName];
+
+    // Extraer la columna de descripciones (suponiendo que están en la columna 'A')
+    const data = utils.sheet_to_json(sheet, { header: 1 });
+    const descriptions = data.map((row) => row[0]).slice(1); // Quitar el encabezado
+
+    return {
+      success: true,
+      descriptions,
+    };
+  } catch (error) {
+    console.error("Error al extraer descripciones del archivo:", error);
+
+    return {
+      success: false,
+      message: "Ha ocurrido un error al extraer las descripciones",
     };
   }
 };
