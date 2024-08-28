@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <PrimeReactProvider>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body className={`${inter.className} m-6 mx-8 `}>{children}</body>
       </html>
     </PrimeReactProvider>
   );

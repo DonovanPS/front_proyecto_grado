@@ -5,6 +5,7 @@ import { Button } from "primereact/button";
 import { Toast } from "primereact/toast";
 import S3Service from "@/service/s3Service";
 import { FileUpload } from 'primereact/fileupload';
+import TableComponent from "@/components/table";
 
 export default function ButtonDemo() {
     const [folderPath, setFolderPath] = useState("");
@@ -15,7 +16,7 @@ export default function ButtonDemo() {
     const [summary, setSummary] = useState("");
     const [title, setTitle] = useState("");
     const [button, setButton] = useState("");
-    const [showConfirm, setShowConfirm] = useState(false); 
+    const [showConfirm, setShowConfirm] = useState(false);
 
     const existFolder = async () => {
         clear();
@@ -98,7 +99,7 @@ export default function ButtonDemo() {
                         </div>
                         <div className="font-medium text-lg my-3 text-800">{props.message.summary}</div>
                         <div className="flex justify-between w-full">
-                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? () => {} : createFolder}></Button>
+                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? () => { } : createFolder}></Button>
                             <Button className="p-button-sm w-full ml-2 p-button-danger" label="Cancelar" severity="error" onClick={clear}></Button>
                         </div>
 
@@ -146,7 +147,7 @@ export default function ButtonDemo() {
         try {
             const files = event.files; // Obtiene los archivos seleccionados
             const response = await S3Service.uploadSpreadsheetFiles(files, folderPath);
-    
+
             if (response.success) {
                 toast.current.show({
                     severity: "success",
@@ -172,13 +173,13 @@ export default function ButtonDemo() {
             });
         }
     };
-    
-    
+
+
 
     return (
         <>
             <div className="card flex flex-column md:flex-row gap-5 max-w-xs w-full p-4">
-                <Toast ref={toast} /> 
+                <Toast ref={toast} />
                 <div className="p-inputgroup flex-1">
                     <InputText
                         placeholder="Folder Path"
@@ -194,13 +195,13 @@ export default function ButtonDemo() {
             </div>
 
             <div className="card">
-                <FileUpload 
-                    name="demo[]" 
-                    customUpload 
+                <FileUpload
+                    name="demo[]"
+                    customUpload
                     uploadHandler={Upload}
-                    multiple 
+                    multiple
                     accept=".xls,.xlsx,.csv"
-                    emptyTemplate={<p className="m-0 text-sm">Arrastra y suelta los archivos aquí para subirlos.</p>} 
+                    emptyTemplate={<p className="m-0 text-sm">Arrastra y suelta los archivos aquí para subirlos.</p>}
                     className="p-2"
                     chooseOptions={{ className: 'p-button-sm py-2 px-3 text-sm' }}
                     uploadOptions={{ className: 'p-button-sm py-2 px-3 text-sm' }}
@@ -211,6 +212,7 @@ export default function ButtonDemo() {
 
             <Toast ref={toastBC} position="bottom-center" onRemove={clear} />
 
+            <TableComponent />
 
         </>
     );

@@ -1,5 +1,5 @@
-import { S3Client, ListObjectsV2Command, PutObjectCommand  } from "@aws-sdk/client-s3";
-
+import { S3Client, ListObjectsV2Command, PutObjectCommand, GetObjectCommand   } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // Configuración del cliente S3
 const s3Client = new S3Client({
@@ -122,6 +122,70 @@ export const uploadFile = async (files, folder) => {
     return {
       success: false,
       message: "An error occurred while uploading files",
+    };
+  }
+};
+
+
+export const listFilesInFolder = async (folderPath) => {
+  try {
+    if (!folderPath) {
+      throw new Error("Folder path is required");
+    }
+
+    // Configurar los parámetros para listar los objetos en la carpeta
+    const params = {
+      Bucket: bucketName,
+      Prefix: folderPath.endsWith("/") ? folderPath : `${folderPath}/`,
+    };
+
+    const command = new ListObjectsV2Command(params);
+    const response = await s3Client.send(command);
+
+    // Función para formatear el tamaño del archivo
+    const formatSize = (size) => {
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let unitIndex = 0;
+
+      while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+      }
+
+      return `${size.toFixed(2)} ${units[unitIndex]}`;
+    };
+
+
+    const formatName = (key) => {
+      return key.split('/').pop();
+    };
+
+    // Obtener la lista de archivos con URL pre-firmada
+    const files = await Promise.all(response.Contents.map(async (file) => {
+      const url = await getSignedUrl(s3Client, new GetObjectCommand({
+        Bucket: bucketName,
+        Key: file.Key,
+      }), { expiresIn: 3600 }); // URL válida por 1 hora (3600 segundos)
+
+      return {
+        Key: file.Key,
+        Name: formatName(file.Key), // Formatear el nombre
+        Size: formatSize(file.Size), // Formatear el tamaño
+        LastModified: file.LastModified,
+        Url: url, // Añadir la URL pre-firmada
+      };
+    }));
+
+    return {
+      success: true,
+      files,
+    };
+  } catch (error) {
+    console.error("Error al listar archivos en la carpeta:", error);
+
+    return {
+      success: false,
+      message: "Ha ocurrido un error al listar los archivos en la carpeta",
     };
   }
 };

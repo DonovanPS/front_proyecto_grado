@@ -70,6 +70,20 @@ const S3Service = {
         }
     },
 
+    getFilesInFolder: async(folderPath)=>{
+        try{
+            const response = await fetch(`/api/s3/get_files?folderPath=${folderPath}`);
+            if(!response.ok){
+                throw new Error(response.message);
+            }
+            const data = await response.json();
+            return data;
+        }catch (error) {
+            console.error('Error en S3Service.getFilesInFolder:', error);
+            throw error;
+        }
+    }
+
 }
 
 export default S3Service;
