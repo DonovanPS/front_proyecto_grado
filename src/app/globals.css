@@ -40,3 +40,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.auto-complete-wide {
+  width: 100% !important; 
+}

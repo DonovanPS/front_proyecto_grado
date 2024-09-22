@@ -11,6 +11,7 @@ import TableComponent from "@/components/table";
 import ComponentPredictionPraph from "@/components/prediction-praph";
 import Grid from '@mui/material/Unstable_Grid2';
 import { TextField } from "@mui/material";
+import { AutoComplete } from "primereact/autocomplete";
 
 
 
@@ -19,16 +20,17 @@ export default function Page() {
     const toast = useRef(null);
     const [exist, setExist] = useState(false);
 
-
     const [summary, setSummary] = useState("");
     const [title, setTitle] = useState("");
     const [button, setButton] = useState("");
     const [showConfirm, setShowConfirm] = useState(false);
 
     // Formulario para la predicción
-    const [description, setDescription] = useState('EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML');
+    const [descriptions, setDescriptions] = useState(['EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML']); // Valor predeterminado inicial
     const [periods, setPeriods] = useState(6);
-    const [predictionData, setPredictionData] = useState(null);
+    const [predictionData, setPredictionData] = useState([]);
+    const [filteredDescriptions, setFilteredDescriptions] = useState([]);
+    const [descriptionsList, setDescriptionsList] = useState([]);
 
 
     const existFolder = async () => {
@@ -189,14 +191,66 @@ export default function Page() {
 
 
 
+    // Autocompletar para la descripción de la predicción
+
+    useEffect(() => {
+        S3Service.getDescriptions(folderPath).then((data) => {
+            if (data && data.success) {
+                setDescriptionsList(data.descriptions);
+            }
+        }).catch((error) => {
+            console.error('Error al cargar las descripciones:', error);
+        });
+    }, [folderPath]);
+
+    const searchDescription = (event) => {
+        const query = event.query.toLowerCase();
+        let suggestions = [];
+
+        if (!query.trim().length) {
+            suggestions = [...descriptionsList];
+        } else {
+            suggestions = descriptionsList.filter((desc) =>
+                desc.toLowerCase().includes(query)
+            );
+        }
+
+        setFilteredDescriptions(suggestions);
+    };
+
+
+    const handleDescriptionChange = (value, index) => {
+        const newDescriptions = [...descriptions];
+        newDescriptions[index] = value;
+        setDescriptions(newDescriptions);
+    };
+
+    // Modificar la función para agregar el valor predeterminado
+    const addDescriptionField = () => {
+        setDescriptions([...descriptions, 'Valor Predeterminado']); // Agrega el valor predeterminado
+    };
+
+    const removeDescriptionField = (index) => {
+        if (descriptions.length > 1) {
+            const newDescriptions = descriptions.filter((_, i) => i !== index);
+            setDescriptions(newDescriptions);
+        }
+    };
+
     //Peticion para prediccion
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const folderPath = 'demo'; // Cambia esto 
-            const data = await DataService.getPrediction(folderPath, description, periods);
-            setPredictionData(data);
+            const folderPath = 'demo';
+            const predictions = [];
+
+            for (const description of descriptions) {
+                const data = await DataService.getPrediction(folderPath, description, periods);
+                predictions.push({ description, data });
+            }
+
+            setPredictionData(predictions);
         } catch (error) {
             console.error('Error al obtener la predicción:', error);
         }
@@ -204,12 +258,10 @@ export default function Page() {
 
     const getOnlyPredictions = (data) => {
         if (data && Array.isArray(data.predictions) && Array.isArray(data.historical_data)) {
-            const lastHistoricalValue = data.historical_data[data.historical_data.length - 1].y; // Obtiene el último valor del histórico
+            const lastHistoricalValue = data.historical_data[data.historical_data.length - 1].y;
 
-            // Obtén los últimos `periods + 1` registros de las predicciones
             const truncatedPredictions = data.predictions.slice(- (periods + 1));
 
-            // Reemplaza el primer valor de las predicciones truncadas con el último valor histórico
             if (truncatedPredictions.length > 0) {
                 truncatedPredictions[0].yhat = lastHistoricalValue;
             }
@@ -306,65 +358,108 @@ export default function Page() {
 
             </div>
 
-            
-    <div className="card ">
-        <form onSubmit={handleSubmit}>
-            <TextField
-                label="Descripción"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                fullWidth
-                margin="normal"
-            />
-            <TextField
-                label="Número de Períodos"
-                type="number"
-                value={periods}
-                onChange={(e) => setPeriods(Number(e.target.value))}
-                fullWidth
-                margin="normal"
-            />
-            <Button type="submit" variant="contained" color="primary">
-                Obtener Predicción
-            </Button>
-        </form>
 
-        {predictionData && (
-            <Grid xs={12} md={6} lg={8} className="mt-4">
-                <ComponentPredictionPraph
-                    title="Predicción de Visitas"
-                    subheader={`Basado en la descripción: ${description}`}
-                    chart={{
-                        labels: [
-                            ...predictionData.historical_data.map((item) => item.ds), // Etiquetas de datos históricos
-                            ...getOnlyPredictions(predictionData).slice(1).map((item) => item.ds), // Etiquetas de predicción, excluyendo la primera para evitar duplicación
-                        ],
-                        series: [
-                            {
-                                name: 'Histórico',
-                                type: 'line',
-                                fill: 'solid',
-                                data: [
-                                    ...predictionData.historical_data.map((item) => item.y), // Datos históricos
-                                ],
-                            },
-                            {
-                                name: 'Predicción',
-                                type: 'line',
-                                fill: 'solid',
-                                data: [
-                                    ...Array(predictionData.historical_data.length - 1).fill(null), // Espacio vacío para los datos históricos
-                                    ...getOnlyPredictions(predictionData).map((item) => item.yhat), // Datos de predicción completos
-                                ],
-                            },
-                        ],
-                    }}
-                />
-            </Grid>
-        )}
-    </div>
+            <div className="card predicciones">
+                <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-2">
+                        {descriptions.map((description, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <div className="flex-grow">
+                                    <AutoComplete
+                                        value={description}
+                                        suggestions={filteredDescriptions}
+                                        completeMethod={searchDescription}
+                                        onChange={(e) => handleDescriptionChange(e.value, index)}
+                                        placeholder="Descripción"
+                                        className="w-full p-fluid"
+                                    />
+                                </div>
+                                {/* Botones para agregar y eliminar campos */}
+                                {index === descriptions.length - 1 && (
+                                    <Button icon="pi pi-plus" rounded text severity="success" aria-label="+" onClick={addDescriptionField} />
+                                )}
+                                {descriptions.length > 1 && (
+                                    <Button icon="pi pi-times" rounded text severity="danger" aria-label="-" type="button" onClick={() => removeDescriptionField(index)} />
+                                )}
+                            </div>
+                        ))}
+                    </div>
 
+                    <div className="flex items-center space-x-2">
+                        <InputText
+                            keyfilter="int"
+                            placeholder="Número de Períodos"
+                            value={periods}
+                            onChange={(e) => setPeriods(Number(e.target.value))}
+                            className="mb-0 w-32"
+                        />
+                        <Button type="submit" variant="contained" color="primary">
+                            Obtener Predicción
+                        </Button>
+                    </div>
+                </form>
 
+                {predictionData.length > 0 && (() => {
+                    // Utilizar las etiquetas de fechas, asegurando que la última fecha histórica no se duplique
+                    const dataExample = predictionData[0].data;
+                    const labels = [
+                        ...dataExample.historical_data.map((item) => item.ds),
+                        ...getOnlyPredictions(dataExample).slice(1).map((item) => item.ds),
+                    ];
+
+                    // Inicializar el array de series
+                    const series = [];
+
+                    // Crear series para cada descripción
+                    predictionData.forEach(({ description, data }) => {
+                        const historicalValues = data.historical_data.map((item) => item.y);
+
+                        // Obtener las predicciones incluyendo el último valor histórico
+                        const predictions = getOnlyPredictions(data);
+                        const predictionValues = predictions.map((item) => item.yhat);
+
+                        // Construir la serie de datos históricos
+                        const historicalSeriesData = [
+                            ...historicalValues,
+                            ...Array(predictionValues.length - 1).fill(null),
+                        ];
+
+                        // Construir la serie de predicciones
+                        const predictionSeriesData = [
+                            ...Array(historicalValues.length - 1).fill(null),
+                            ...predictionValues,
+                        ];
+
+                        // Agregar las series al array
+                        series.push({
+                            name: `${description} - Histórico`,
+                            type: 'line',
+                            fill: 'solid',
+                            data: historicalSeriesData,
+                        });
+
+                        series.push({
+                            name: `${description} - Predicción`,
+                            type: 'line',
+                            fill: 'dashed', // Usamos 'dashed' para distinguir las predicciones
+                            data: predictionSeriesData,
+                        });
+                    });
+
+                    return (
+                        <Grid xs={12} md={6} lg={8} className="mt-4">
+                            <ComponentPredictionPraph
+                                title="Comparación de Predicciones"
+                                subheader="Comparativa entre descripciones"
+                                chart={{
+                                    labels: labels,
+                                    series: series,
+                                }}
+                            />
+                        </Grid>
+                    );
+                })()}
+            </div>
         </>
     );
 }
