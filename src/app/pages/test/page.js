@@ -10,10 +10,10 @@ import { FileUpload } from 'primereact/fileupload';
 import TableComponent from "@/components/table";
 import ComponentPredictionPraph from "@/components/prediction-praph";
 import Grid from '@mui/material/Unstable_Grid2';
-import { TextField } from "@mui/material";
+
 import { AutoComplete } from "primereact/autocomplete";
-
-
+import { Accordion, AccordionTab } from 'primereact/accordion';
+import { ProgressBar } from 'primereact/progressbar';
 
 export default function Page() {
     const [folderPath, setFolderPath] = useState("");
@@ -32,6 +32,10 @@ export default function Page() {
     const [filteredDescriptions, setFilteredDescriptions] = useState([]);
     const [descriptionsList, setDescriptionsList] = useState([]);
 
+    // progressBar
+    const [loading, setLoading] = useState(false);
+
+    // ---------------------------------------------------
 
     const existFolder = async () => {
         clear();
@@ -76,14 +80,13 @@ export default function Page() {
                 });
             }
         }
-
     };
 
     useEffect(() => {
         if (showConfirm) {
             const timer = setTimeout(() => {
                 confirm();
-                setShowConfirm(false); // Reinicia el estado
+                setShowConfirm(false); 
             }, 3000);
 
             return () => clearTimeout(timer); // Limpia el timer si el componente se desmonta o si cambia el estado
@@ -95,15 +98,15 @@ export default function Page() {
     const toastBC = useRef(null);
 
     const clear = () => {
-        toastBC.current.clear();
+        toastBC.current?.clear();
         setVisible(false);
     };
 
     const confirm = () => {
         if (!visible) {
             setVisible(true);
-            toastBC.current.clear();
-            toastBC.current.show({
+            toastBC.current?.clear();
+            toastBC.current?.show({
                 severity: 'success',
                 summary: summary,
                 sticky: true,
@@ -117,17 +120,14 @@ export default function Page() {
                             <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? () => { } : createFolder}></Button>
                             <Button className="p-button-sm w-full ml-2 p-button-danger" label="Cancelar" severity="error" onClick={clear}></Button>
                         </div>
-
                     </div>
                 )
             });
         }
     };
 
-
     const createFolder = async () => {
         try {
-
             const response = await S3Service.createFolder(folderPath);
 
             if (response) {
@@ -143,7 +143,6 @@ export default function Page() {
                     });
                 }
             }
-
         } catch (error) {
             if (toast.current) {
                 toast.current.clear();
@@ -155,9 +154,9 @@ export default function Page() {
                 });
             }
         }
-    }
+    };
 
-    // Enviar hojas de calculo al servicio
+    // Enviar hojas de cálculo al servicio
     const Upload = async (event) => {
         try {
             const files = event.files; // Obtiene los archivos seleccionados
@@ -189,10 +188,7 @@ export default function Page() {
         }
     };
 
-
-
     // Autocompletar para la descripción de la predicción
-
     useEffect(() => {
         S3Service.getDescriptions(folderPath).then((data) => {
             if (data && data.success) {
@@ -218,7 +214,6 @@ export default function Page() {
         setFilteredDescriptions(suggestions);
     };
 
-
     const handleDescriptionChange = (value, index) => {
         const newDescriptions = [...descriptions];
         newDescriptions[index] = value;
@@ -227,7 +222,7 @@ export default function Page() {
 
     // Modificar la función para agregar el valor predeterminado
     const addDescriptionField = () => {
-        setDescriptions([...descriptions, 'Valor Predeterminado']); // Agrega el valor predeterminado
+        setDescriptions([...descriptions, 'Valor Predeterminado']); 
     };
 
     const removeDescriptionField = (index) => {
@@ -237,22 +232,25 @@ export default function Page() {
         }
     };
 
-    //Peticion para prediccion
-
+    // Petición para predicción
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Inicia la carga
         try {
             const folderPath = 'demo';
             const predictions = [];
 
             for (const description of descriptions) {
                 const data = await DataService.getPrediction(folderPath, description, periods);
-                predictions.push({ description, data });
+                const topCorrelated = await DataService.getTopCorrelatedMedications(folderPath, description, 5);
+                predictions.push({ description, data, topCorrelated });
             }
 
             setPredictionData(predictions);
         } catch (error) {
             console.error('Error al obtener la predicción:', error);
+        } finally {
+            setLoading(false); // Finaliza la carga
         }
     };
 
@@ -272,8 +270,16 @@ export default function Page() {
         return [];
     };
 
+    const [predictionCards, setPredictionCards] = useState([
+        { id: Date.now(), descriptions: [''], periods: 6, predictionData: null }
+    ]);
 
-
+    const addNewPredictionCard = () => {
+        setPredictionCards([
+            ...predictionCards,
+            { id: Date.now(), descriptions: [''], periods: 6, predictionData: null }
+        ]);
+    };
 
     return (
         <>
@@ -308,12 +314,12 @@ export default function Page() {
                 />
             </div>
 
-
             <Toast ref={toastBC} position="bottom-center" onRemove={clear} />
 
             <TableComponent />
 
             <div className="card">
+                <h2 className="card-title">Título del Componente</h2>
                 <Grid xs={12} md={6} lg={8}>
                     <ComponentPredictionPraph
                         title="Website Visits"
@@ -355,11 +361,19 @@ export default function Page() {
                         }}
                     />
                 </Grid>
-
             </div>
 
+            <div className="card predicciones relative">
+                <h2 className="card-title">Predicciones</h2>
 
-            <div className="card predicciones">
+                <Button
+                    icon="pi pi-plus"
+                    className="absolute top-2 right-2"
+                    rounded text severity="success"
+                    aria-label="Agregar Predicción"
+                    onClick={addNewPredictionCard}
+                />
+
                 <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
                     <div className="flex flex-col space-y-2">
                         {descriptions.map((description, index) => (
@@ -374,7 +388,7 @@ export default function Page() {
                                         className="w-full p-fluid"
                                     />
                                 </div>
-                                {/* Botones para agregar y eliminar campos */}
+
                                 {index === descriptions.length - 1 && (
                                     <Button icon="pi pi-plus" rounded text severity="success" aria-label="+" onClick={addDescriptionField} />
                                 )}
@@ -393,44 +407,46 @@ export default function Page() {
                             onChange={(e) => setPeriods(Number(e.target.value))}
                             className="mb-0 w-32"
                         />
-                        <Button type="submit" variant="contained" color="primary">
+                        <Button type="submit" variant="contained" color="primary" disabled={loading}>
                             Obtener Predicción
                         </Button>
                     </div>
                 </form>
 
-                {predictionData.length > 0 && (() => {
-                    // Utilizar las etiquetas de fechas, asegurando que la última fecha histórica no se duplique
+                {/* Mostrar ProgressBar mientras se carga */}
+                {loading && (
+                    <div className="mt-4">
+                        <ProgressBar mode="indeterminate" style={{ height: '6px' }}></ProgressBar>
+                    </div>
+                )}
+
+                {/* Renderizar datos de predicción si existen y no está cargando */}
+                {!loading && predictionData.length > 0 && (() => {
                     const dataExample = predictionData[0].data;
                     const labels = [
                         ...dataExample.historical_data.map((item) => item.ds),
                         ...getOnlyPredictions(dataExample).slice(1).map((item) => item.ds),
                     ];
 
-                    // Inicializar el array de series
                     const series = [];
 
                     // Crear series para cada descripción
                     predictionData.forEach(({ description, data }) => {
                         const historicalValues = data.historical_data.map((item) => item.y);
 
-                        // Obtener las predicciones incluyendo el último valor histórico
                         const predictions = getOnlyPredictions(data);
                         const predictionValues = predictions.map((item) => item.yhat);
 
-                        // Construir la serie de datos históricos
                         const historicalSeriesData = [
                             ...historicalValues,
                             ...Array(predictionValues.length - 1).fill(null),
                         ];
 
-                        // Construir la serie de predicciones
                         const predictionSeriesData = [
                             ...Array(historicalValues.length - 1).fill(null),
                             ...predictionValues,
                         ];
 
-                        // Agregar las series al array
                         series.push({
                             name: `${description} - Histórico`,
                             type: 'line',
@@ -441,22 +457,41 @@ export default function Page() {
                         series.push({
                             name: `${description} - Predicción`,
                             type: 'line',
-                            fill: 'dashed', // Usamos 'dashed' para distinguir las predicciones
+                            fill: 'dashed',
                             data: predictionSeriesData,
                         });
                     });
 
                     return (
-                        <Grid xs={12} md={6} lg={8} className="mt-4">
-                            <ComponentPredictionPraph
-                                title="Comparación de Predicciones"
-                                subheader="Comparativa entre descripciones"
-                                chart={{
-                                    labels: labels,
-                                    series: series,
-                                }}
-                            />
-                        </Grid>
+                        <>
+                            <Grid xs={12} md={6} lg={8} className="mt-4">
+                                <ComponentPredictionPraph
+                                    title="Comparación de Predicciones"
+                                    subheader="Comparativa entre descripciones"
+                                    chart={{
+                                        labels: labels,
+                                        series: series,
+                                    }}
+                                />
+                            </Grid>
+
+                            {/* Renderizar el Accordion */}
+                            <div className="mt-4">
+                                <Accordion multiple activeIndex={[0]}>
+                                    {predictionData.map(({ description, topCorrelated }, index) => (
+                                        <AccordionTab key={index} header={`Top correlaciones para ${description}`}>
+                                            <ul>
+                                                {topCorrelated.top_correlated_medications.map((item, idx) => (
+                                                    <li key={idx}>
+                                                        <strong>{item.medication}</strong> - Correlación: {item.correlation.toFixed(4)}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </AccordionTab>
+                                    ))}
+                                </Accordion>
+                            </div>
+                        </>
                     );
                 })()}
             </div>
