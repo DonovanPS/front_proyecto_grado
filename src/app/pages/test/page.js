@@ -238,21 +238,28 @@ export default function Page() {
         setLoading(true); // Inicia la carga
         try {
             const folderPath = 'demo';
-            const predictions = [];
-
-            for (const description of descriptions) {
-                const data = await DataService.getPrediction(folderPath, description, periods);
-                const topCorrelated = await DataService.getTopCorrelatedMedications(folderPath, description, 5);
-                predictions.push({ description, data, topCorrelated });
-            }
-
+    
+            // crear un array de promesas
+            const predictionsPromises = descriptions.map(async (description) => {
+                // Ejecutar ambas peticiones en paralelo para cada descripción
+                const [data, topCorrelated] = await Promise.all([
+                    DataService.getPrediction(folderPath, description, periods),
+                    DataService.getTopCorrelatedMedications(folderPath, description, 5),
+                ]);
+                return { description, data, topCorrelated };
+            });
+    
+            // Esperar a que todas las promesas se resuelvan
+            const predictions = await Promise.all(predictionsPromises);
+    
             setPredictionData(predictions);
         } catch (error) {
             console.error('Error al obtener la predicción:', error);
         } finally {
-            setLoading(false); // Finaliza la carga
+            setLoading(false); 
         }
     };
+    
 
     const getOnlyPredictions = (data) => {
         if (data && Array.isArray(data.predictions) && Array.isArray(data.historical_data)) {
