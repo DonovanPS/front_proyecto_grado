@@ -14,6 +14,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { AutoComplete } from "primereact/autocomplete";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ProgressBar } from 'primereact/progressbar';
+import { Tag } from "primereact/tag";
 
 export default function Page() {
     const [folderPath, setFolderPath] = useState("");
@@ -86,7 +87,7 @@ export default function Page() {
         if (showConfirm) {
             const timer = setTimeout(() => {
                 confirm();
-                setShowConfirm(false); 
+                setShowConfirm(false);
             }, 3000);
 
             return () => clearTimeout(timer); // Limpia el timer si el componente se desmonta o si cambia el estado
@@ -222,7 +223,7 @@ export default function Page() {
 
     // Modificar la función para agregar el valor predeterminado
     const addDescriptionField = () => {
-        setDescriptions([...descriptions, 'Valor Predeterminado']); 
+        setDescriptions([...descriptions, 'Valor Predeterminado']);
     };
 
     const removeDescriptionField = (index) => {
@@ -238,7 +239,7 @@ export default function Page() {
         setLoading(true); // Inicia la carga
         try {
             const folderPath = 'demo';
-    
+
             // crear un array de promesas
             const predictionsPromises = descriptions.map(async (description) => {
                 // Ejecutar ambas peticiones en paralelo para cada descripción
@@ -248,18 +249,18 @@ export default function Page() {
                 ]);
                 return { description, data, topCorrelated };
             });
-    
+
             // Esperar a que todas las promesas se resuelvan
             const predictions = await Promise.all(predictionsPromises);
-    
+
             setPredictionData(predictions);
         } catch (error) {
             console.error('Error al obtener la predicción:', error);
         } finally {
-            setLoading(false); 
+            setLoading(false);
         }
     };
-    
+
 
     const getOnlyPredictions = (data) => {
         if (data && Array.isArray(data.predictions) && Array.isArray(data.historical_data)) {
@@ -486,7 +487,23 @@ export default function Page() {
                             <div className="mt-4">
                                 <Accordion multiple activeIndex={[0]}>
                                     {predictionData.map(({ description, topCorrelated }, index) => (
-                                        <AccordionTab key={index} header={`Top correlaciones para ${description}`}>
+                                        <AccordionTab key={index} header={
+                                            <>
+                                                Top correlaciones para{' '}
+                                                <code
+                                                    style={{
+                                                        backgroundColor: '#424242',
+                                                        padding: '.15rem .3rem',
+                                                        borderRadius: '.25rem',
+                                                        fontFamily: 'monospace',
+                                                        fontSize: '1em',
+                                                    }}
+                                                >
+                                                    {description}
+                                                </code>
+                                            </>
+                                        }>
+
                                             <ul>
                                                 {topCorrelated.top_correlated_medications.map((item, idx) => (
                                                     <li key={idx}>
