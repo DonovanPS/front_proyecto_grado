@@ -23,6 +23,14 @@ export const validFolder = async (folderPath) => {
       throw new Error("Folder path is required");
     }
 
+    const sanitizedBucketName = bucketName.trim();
+    const sanitizedFolderPath = folderPath.trim();
+
+    console.log("Validating folder path:", sanitizedFolderPath);
+    console.log("Bucket Name:", sanitizedBucketName);
+    console.log("Bucket Name Length:", sanitizedBucketName.length);
+    console.log("Folder Path Length:", sanitizedFolderPath.length);
+
     // Configurar los parámetros para listar los objetos en la carpeta
     const params = {
       Bucket: bucketName,
