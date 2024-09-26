@@ -5,6 +5,7 @@ export async function GET(req) {
     try {
         const url = new URL(req.url); 
         const folderPath = url.searchParams.get('folderPath');
+        const fileName = url.searchParams.get('fileName');
 
         if (!folderPath) {
             return NextResponse.json({
@@ -13,7 +14,14 @@ export async function GET(req) {
             });
         }
 
-        const result = await getDescriptions(folderPath);
+        if (!fileName) {
+            return NextResponse.json({
+                success: false,
+                message: "Nombre del archivo es requerido",
+            });
+        }
+
+        const result = await getDescriptions(folderPath, fileName);
 
         return NextResponse.json(result);
 

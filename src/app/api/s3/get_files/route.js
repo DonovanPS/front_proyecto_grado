@@ -7,7 +7,6 @@ export async function GET(req) {
         const url = new URL(req.url); // Crear un objeto URL a partir de la URL de la solicitud
         const folderPath = url.searchParams.get('folderPath'); // Obtener el parametro de consulta 'folderPath'
         
-        console.log('folderPath', folderPath);
 
         if (!folderPath) {
             return NextResponse.json({

@@ -10,7 +10,7 @@ export default function ComponentPredictionPraph({ title, subheader, chart, ...o
 
   // Log series to see their structure
   useEffect(() => {
-    console.log('Series data:', series);
+
   }, [series]);
 
   const formatValue = (value) => {

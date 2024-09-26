@@ -11,6 +11,8 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import S3Service from '@/service/s3Service';
 import * as XLSX from 'xlsx';
+import { Checkbox } from "primereact/checkbox"; 
+import { useFileContext } from '@/app/context/fileContex';
 
 export default function TableComponent() {
     const [data, setData] = useState(null);
@@ -21,14 +23,29 @@ export default function TableComponent() {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [visible, setVisible] = useState(false);
     const [spreadsheetData, setSpreadsheetData] = useState(null);
-    const [selectedFileName, setSelectedFileName] = useState(''); // Nuevo estado para el nombre del archivo
+    const [selectedFileName, setSelectedFileName] = useState(''); 
+
+    const [selectedRowKey, setSelectedRowKey] = useState(null)
+
+    // Contexto
+    const { setCheckFileName } = useFileContext(); //  setter del contexto
+    const { folder } = useFileContext(); // getter del contexto
+    const [folderName, setFolderName] = useState(''); 
 
     useEffect(() => {
-        S3Service.getFilesInFolder("demo").then((data) => {
+        if(folder){
+            setFolderName(folder);
+            console.log("Folder: ", folder);  
+        }
+    }, [folder]);
+
+
+    useEffect(() => {
+        S3Service.getFilesInFolder(folderName).then((data) => {
             setData(data.files);
             setLoading(false);
         });
-    }, []);
+    }, [folderName]);
 
     const onGlobalFilterChange = (e) => {
         const value = e.target.value;
@@ -75,6 +92,25 @@ export default function TableComponent() {
         );
     };
 
+
+    // Actualiza el archivo seleccionado en el contexto al hacer check
+    const onRowSelect = (rowData) => {
+        setSelectedRowKey(rowData.Key); // Seleccionar la fila por clave
+        setCheckFileName(rowData.Name); // Actualizar el contexto con el nombre del archivo
+  
+        
+    };
+
+    const viewSelectedFiles = (rowData) => {
+        return (
+            <Checkbox
+                onChange={() => onRowSelect(rowData)}
+                checked={selectedRowKey === rowData.Key}
+            />
+        );
+    };
+    
+
     const header = renderHeader();
 
     return (
@@ -85,6 +121,7 @@ export default function TableComponent() {
                 <Column field="Name" header="Name" style={{ minWidth: '12rem' }} />
                 <Column header="Tamaño" field="Size" style={{ minWidth: '12rem' }} />
                 <Column body={viewButtonTemplate} header="Acciones" style={{ minWidth: '8rem' }} />
+                <Column header="Selección" body={viewSelectedFiles} style={{ minWidth: '12rem' }} />
             </DataTable>
 
             <Dialog header={`Previsualización de ${selectedFileName}`} visible={visible} maximizable style={{ width: '50vw' }} onHide={() => setVisible(false)}>

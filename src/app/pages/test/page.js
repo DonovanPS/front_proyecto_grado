@@ -14,12 +14,16 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { AutoComplete } from "primereact/autocomplete";
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { ProgressBar } from 'primereact/progressbar';
-import { Tag } from "primereact/tag";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+
+import { useFileContext } from "@/app/context/fileContex";
 
 export default function Page() {
     const [folderPath, setFolderPath] = useState("");
     const toast = useRef(null);
     const [exist, setExist] = useState(false);
+    const [showTableAndPredictions, setShowTableAndPredictions] = useState(false);
 
     const [summary, setSummary] = useState("");
     const [title, setTitle] = useState("");
@@ -35,6 +39,18 @@ export default function Page() {
 
     // progressBar
     const [loading, setLoading] = useState(false);
+
+    // Contexto
+    const { setFolder } = useFileContext(); // nombre de la carpeta desde el contexto
+    const { checkFileName } = useFileContext(); // nombre del archivo desde el contexto
+    const [fileName, setFileName] = useState(''); 
+
+    useEffect(() => {
+        if (checkFileName) {
+            setFileName(checkFileName); 
+        }
+    }, [checkFileName]); 
+
 
     // ---------------------------------------------------
 
@@ -118,13 +134,21 @@ export default function Page() {
                         </div>
                         <div className="font-medium text-lg my-3 text-800">{props.message.summary}</div>
                         <div className="flex justify-between w-full">
-                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? () => { } : createFolder}></Button>
+                            <Button className="p-button-sm w-full " label={button} severity="success" onClick={exist ? ShowTableAndPrediction : createFolder}></Button>
                             <Button className="p-button-sm w-full ml-2 p-button-danger" label="Cancelar" severity="error" onClick={clear}></Button>
                         </div>
                     </div>
                 )
             });
         }
+    };
+
+    const ShowTableAndPrediction = () => {        
+        setShowTableAndPredictions(true);
+        setFolder(folderPath);
+
+        clear();
+
     };
 
     const createFolder = async () => {
@@ -191,14 +215,14 @@ export default function Page() {
 
     // Autocompletar para la descripción de la predicción
     useEffect(() => {
-        S3Service.getDescriptions(folderPath).then((data) => {
+        S3Service.getDescriptions(folderPath, fileName).then((data) => {
             if (data && data.success) {
                 setDescriptionsList(data.descriptions);
             }
         }).catch((error) => {
             console.error('Error al cargar las descripciones:', error);
         });
-    }, [folderPath]);
+    }, [folderPath, fileName]);
 
     const searchDescription = (event) => {
         const query = event.query.toLowerCase();
@@ -222,8 +246,15 @@ export default function Page() {
     };
 
     // Modificar la función para agregar el valor predeterminado
-    const addDescriptionField = () => {
-        setDescriptions([...descriptions, 'Valor Predeterminado']);
+    const addDescriptionField = (valor) => {
+
+        if (valor.medication) {
+            const newDescriptions = [...descriptions, valor.medication];
+            setDescriptions(newDescriptions);
+        } else {
+            const newDescriptions = [...descriptions, 'Valor predeterminado'];
+            setDescriptions(newDescriptions);
+        }
     };
 
     const removeDescriptionField = (index) => {
@@ -238,14 +269,25 @@ export default function Page() {
         e.preventDefault();
         setLoading(true); // Inicia la carga
         try {
-            const folderPath = 'demo';
+
+            if(fileName === ''){
+                toast.current.show({
+                    severity: "warn",
+                    summary: "Archivo no seleccionado",
+                    detail: "Por favor seleccione un archivo.",
+                    life: 3000,
+                });
+                setLoading(false);
+                return;
+            }
+            
 
             // crear un array de promesas
             const predictionsPromises = descriptions.map(async (description) => {
                 // Ejecutar ambas peticiones en paralelo para cada descripción
                 const [data, topCorrelated] = await Promise.all([
-                    DataService.getPrediction(folderPath, description, periods),
-                    DataService.getTopCorrelatedMedications(folderPath, description, 5),
+                    DataService.getPrediction(folderPath,fileName, description, periods),
+                    DataService.getTopCorrelatedMedications(folderPath, fileName,description, 5),
                 ]);
                 return { description, data, topCorrelated };
             });
@@ -504,13 +546,44 @@ export default function Page() {
                                             </>
                                         }>
 
-                                            <ul>
-                                                {topCorrelated.top_correlated_medications.map((item, idx) => (
-                                                    <li key={idx}>
-                                                        <strong>{item.medication}</strong> - Correlación: {item.correlation.toFixed(4)}
-                                                    </li>
-                                                ))}
-                                            </ul>
+
+
+                                            <DataTable
+                                                className="text-sm"
+                                                value={topCorrelated.top_correlated_medications}
+                                                size="small"
+                                                tableStyle={{ minWidth: '50rem' }}
+                                            >
+                                                <Column field="medication" header="Descripción"
+                                                    headerClassName="text-sm py-0 px-2"
+                                                    bodyClassName="text-sm py-0 px-2"
+                                                ></Column>
+                                                <Column
+                                                    field="correlation"
+                                                    header="Correlación"
+                                                    body={(rowData) => rowData.correlation.toFixed(4)}
+                                                    headerClassName="text-sm py-0 px-2"
+                                                    bodyClassName="text-sm py-0 px-2"
+                                                ></Column>
+                                                <Column
+                                                    header="Acción"
+                                                    headerClassName="text-sm py-0 px-2"
+                                                    bodyClassName="text-sm py-0 px-2"
+                                                    body={(rowData) => (
+                                                        <Button
+                                                            className="p-button-sm"
+                                                            icon="pi pi-plus"
+                                                            rounded
+                                                            text
+                                                            aria-label="Agregar"
+                                                            onClick={() => addDescriptionField(rowData)}
+                                                        />
+                                                    )}
+                                                ></Column>
+                                            </DataTable>
+
+
+
                                         </AccordionTab>
                                     ))}
                                 </Accordion>

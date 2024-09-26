@@ -84,9 +84,9 @@ const S3Service = {
         }
     },
 
-    getDescriptions: async(folderPath)=>{
+    getDescriptions: async(folderPath, fileName)=>{
         try{
-            const response = await fetch(`/api/s3/get_description?folderPath=${folderPath}`);
+            const response = await fetch(`/api/s3/get_description?folderPath=${folderPath}&fileName=${fileName}`);
             if(!response.ok){
                 throw new Error(response.message);
             }

@@ -193,13 +193,17 @@ export const listFilesInFolder = async (folderPath) => {
 };
 
 
-export const getDescriptions = async (folderPath) => {
+export const getDescriptions = async (folderPath, fileName) => {
   try {
     if (!folderPath) {
       throw new Error("Folder path is required");
     }
 
-    const fileKey = `${folderPath}/consolidado_total.xlsx`;
+    if (!fileName) {
+      throw new Error("File name is required");
+    }
+
+    const fileKey = `${folderPath}/${fileName}`;
 
     // Obtener el archivo desde S3
     const getObjectParams = {

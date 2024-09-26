@@ -8,6 +8,9 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 
+// Contexto
+import { FileProvider } from "./context/fileContex";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -17,10 +20,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <PrimeReactProvider>
-      <html lang="en">
-        <body className={`${inter.className} m-6 mx-8 `}>{children}</body>
-      </html>
-    </PrimeReactProvider>
+    <FileProvider>
+
+      <PrimeReactProvider>
+        <html lang="en">
+          <body className={`${inter.className} m-6 mx-8 `}>{children}</body>
+        </html>
+      </PrimeReactProvider>
+    </FileProvider>
   );
 }
