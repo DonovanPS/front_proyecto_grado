@@ -35,7 +35,6 @@ export default function TableComponent() {
     useEffect(() => {
         if(folder){
             setFolderName(folder);
-            console.log("Folder: ", folder);  
         }
     }, [folder]);
 
