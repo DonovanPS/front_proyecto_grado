@@ -9,9 +9,10 @@ const FileContext = createContext();
 export const FileProvider = ({ children }) => {
     const [checkFileName, setCheckFileName] = useState('');
     const [folder, setFolder] = useState(''); 
+    const [update, setUpdate] = useState(false);
 
     return (
-        <FileContext.Provider value={{ checkFileName, setCheckFileName, folder, setFolder }}>
+        <FileContext.Provider value={{ checkFileName, setCheckFileName, folder, setFolder, update, setUpdate }}>
             {children}
         </FileContext.Provider>
     );

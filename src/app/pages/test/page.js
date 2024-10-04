@@ -487,6 +487,10 @@ export default function Page() {
                         const predictions = getOnlyPredictions(data);
                         const predictionValues = predictions.map((item) => item.yhat);
 
+                        console.log(data);
+                        console.log(predictions);
+                        
+                        
                         const historicalSeriesData = [
                             ...historicalValues,
                             ...Array(predictionValues.length - 1).fill(null),
