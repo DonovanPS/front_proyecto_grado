@@ -1,9 +1,20 @@
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl_prophet = process.env.NEXT_PUBLIC_API_URL_prophet;
+const apiUrl_xgboost = process.env.NEXT_PUBLIC_API_URL_xgboost;
+const apiUrl_sarimax = process.env.NEXT_PUBLIC_API_URL_sarimax;
+
+const apiUrls = {
+    prophet: process.env.NEXT_PUBLIC_API_URL_prophet,
+    xgboost: process.env.NEXT_PUBLIC_API_URL_xgboost,
+    sarimax: process.env.NEXT_PUBLIC_API_URL_sarimax,
+};
+
 
 const DataService = {
 
 
-    getPrediction: async (folder_name, file_name ,description, periods) => {
+    getPrediction: async (folder_name, file_name, description, periods, model) => {
+
+        const apiUrl = apiUrls[model];    
         try {
             const response = await fetch(`${apiUrl}/predict`, {
                 method: 'POST',
@@ -27,7 +38,7 @@ const DataService = {
 
     getTopCorrelatedMedications: async (folder_name, file_name, description, top_n) => {
         try {
-            const response = await fetch(`${apiUrl}/top_correlated`, {
+            const response = await fetch(`${apiUrls.xgboost}/top_correlated`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

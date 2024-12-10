@@ -7,20 +7,38 @@ import { useFileContext } from "@/app/context/fileContex";
 import PrimeReactToast from "../Toast";
 import S3Service from "@/service/s3Service";
 import DataService from "@/service/dataService";
+import { Dropdown } from "primereact/dropdown";
 
-export default function PredictionForm({ onSubmit, setPredictionData, setLoading, loading, descriptions, setDescriptions }) {
-//   const [descriptions, setDescriptions] = useState([
-//     "EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML",
-//   ]);
+export default function PredictionForm({
+  onSubmit,
+  setPredictionData,
+  setLoading,
+  loading,
+  descriptions,
+  setDescriptions,
+}) {
+  //   const [descriptions, setDescriptions] = useState([
+  //     "EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML",
+  //   ]);
   const [alertMessage, setAlertMessage] = useState(null);
   const [filteredDescriptions, setFilteredDescriptions] = useState([]);
   const [descriptionsList, setDescriptionsList] = useState([]);
   const [periods, setPeriods] = useState(6);
 
+  const [selectedModel, setSelectedModel] = useState({ name: "Prophet", code: "prophet" });
+  const models = [
+    { name: "Prophet", code: "prophet" },
+    { name: "Personalizado", code: "personalizado" },
+    { name: "Xgboost", code: "xgboost" },
+    { name: "Sarimax", code: "sarimax" },
+  ];
+
   const { folder, checkFileName } = useFileContext();
 
   useEffect(() => {
-    setDescriptions(["EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML"]);
+    setDescriptions([
+      "EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML",
+    ]);
   }, []);
 
   useEffect(() => {
@@ -76,8 +94,19 @@ export default function PredictionForm({ onSubmit, setPredictionData, setLoading
 
       const predictionsPromises = descriptions.map(async (description) => {
         const [data, topCorrelated] = await Promise.all([
-          DataService.getPrediction(folder, checkFileName, description, periods),
-          DataService.getTopCorrelatedMedications(folder, checkFileName, description, 5),
+          DataService.getPrediction(
+            folder,
+            checkFileName,
+            description,
+            periods,
+            selectedModel.code
+          ),
+          DataService.getTopCorrelatedMedications(
+            folder,
+            checkFileName,
+            description,
+            5
+          ),
         ]);
         return { description, data, topCorrelated };
       });
@@ -101,6 +130,17 @@ export default function PredictionForm({ onSubmit, setPredictionData, setLoading
         severity="success"
         aria-label="Agregar Predicción"
       />
+
+      <div className="flex justify-start mt-4 mb-4">
+        <Dropdown
+          value={selectedModel}
+          onChange={(e) => setSelectedModel(e.value)}
+          options={models}
+          optionLabel="name"
+          placeholder="Selecciona un Modelo"
+          className="w-full md:w-14rem"
+        />
+      </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col space-y-2">
         <div className="flex flex-col space-y-2">

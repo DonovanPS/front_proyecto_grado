@@ -3,23 +3,36 @@ import Grid from "@mui/material/Unstable_Grid2";
 import ComponentPredictionPraph from "@/components/prediction-praph";
 
 export default function PredictionGraph({ predictionData, periods }) {
+  const getOnlyPredictions = (data) => {
+    if (
+      data &&
+      Array.isArray(data.predictions) &&
+      Array.isArray(data.historical_data)
+    ) {
+      const lastHistoricalValue =
+        data.historical_data[data.historical_data.length - 1].y;
 
-    const getOnlyPredictions = (data) => {
-        if (data && Array.isArray(data.predictions) && Array.isArray(data.historical_data)) {
-            const lastHistoricalValue = data.historical_data[data.historical_data.length - 1].y;
-        
-            // Obtener las predicciones
-            const predictions = data.predictions.filter(prediction => prediction.ds > data.historical_data[data.historical_data.length - 1].ds);
-        
-            // Agregar el último valor histórico como la primera predicción
-            if (predictions.length > 0) {
-              predictions.unshift({ ds: data.historical_data[data.historical_data.length - 1].ds, yhat: lastHistoricalValue });
-            }
-        
-            return predictions;
-          }
-          return [];
-      };
+      // Obtener las predicciones
+      const predictions = data.predictions.filter(
+        (prediction) =>
+          prediction.ds >
+          data.historical_data[data.historical_data.length - 1].ds
+      );
+
+      // Agregar el último valor histórico como la primera predicción
+      if (predictions.length > 0) {
+        predictions.unshift({
+          ds: data.historical_data[data.historical_data.length - 1].ds,
+          yhat: lastHistoricalValue,
+        });
+      }
+
+      return predictions;
+    }
+    return [];
+  };
+
+  
 
   if (!predictionData.length) return null;
 
@@ -37,12 +50,18 @@ export default function PredictionGraph({ predictionData, periods }) {
       {
         name: `${description} - Histórico`,
         type: "line",
-        data: [...historicalValues, ...Array(predictionValues.length - 1).fill(null)],
+        data: [
+          ...historicalValues,
+          ...Array(predictionValues.length).fill(null),
+        ],
       },
       {
         name: `${description} - Predicción`,
         type: "line",
-        data: [...Array(historicalValues.length - 1).fill(null), ...predictionValues],
+        data: [
+          ...Array(historicalValues.length).fill(null),
+          ...predictionValues,
+        ],
       },
     ];
   });
