@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "primereact/button";
 import { AutoComplete } from "primereact/autocomplete";
 import { InputText } from "primereact/inputtext";
-
 import { useFileContext } from "@/app/context/fileContex";
 import PrimeReactToast from "../Toast";
 import S3Service from "@/service/s3Service";
@@ -17,29 +16,36 @@ export default function PredictionForm({
   descriptions,
   setDescriptions,
 }) {
-  //   const [descriptions, setDescriptions] = useState([
-  //     "EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML",
-  //   ]);
   const [alertMessage, setAlertMessage] = useState(null);
   const [filteredDescriptions, setFilteredDescriptions] = useState([]);
   const [descriptionsList, setDescriptionsList] = useState([]);
   const [periods, setPeriods] = useState(6);
-
   const [selectedModel, setSelectedModel] = useState({ name: "Prophet", code: "prophet" });
+
+  // Estado adicional para los modelos personalizados por descripción
+  const [customModels, setCustomModels] = useState([]);
+
   const models = [
     { name: "Prophet", code: "prophet" },
-    { name: "Personalizado", code: "personalizado" },
     { name: "Xgboost", code: "xgboost" },
     { name: "Sarimax", code: "sarimax" },
+    { name: "Personalizado", code: "personalizado" },
   ];
 
   const { folder, checkFileName } = useFileContext();
 
   useEffect(() => {
-    setDescriptions([
-      "EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML",
-    ]);
+    setDescriptions(["EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML"]);
+    setCustomModels([""]); // Inicializar modelos personalizados
   }, []);
+  
+  useEffect(() => {
+    console.log("models.code", selectedModel);
+    
+    setCustomModels([""]); // Inicializar modelos personalizados
+  }, [selectedModel]);
+
+ 
 
   useEffect(() => {
     if (checkFileName) {
@@ -69,12 +75,22 @@ export default function PredictionForm({
     setDescriptions(newDescriptions);
   };
 
-  const addDescriptionField = () => setDescriptions([...descriptions, ""]);
+  const addDescriptionField = () => {
+    setDescriptions([...descriptions, ""]);
+    setCustomModels([...customModels, ""]); // Agregar un modelo personalizado vacío para la nueva descripción
+  };
 
   const removeDescriptionField = (index) => {
     if (descriptions.length > 1) {
       setDescriptions(descriptions.filter((_, i) => i !== index));
+      setCustomModels(customModels.filter((_, i) => i !== index)); // Remover el modelo personalizado correspondiente
     }
+  };
+
+  const handleCustomModelChange = (value, index) => {
+    const newCustomModels = [...customModels];
+    newCustomModels[index] = value;
+    setCustomModels(newCustomModels);
   };
 
   const handleSubmit = async (e) => {
@@ -92,21 +108,11 @@ export default function PredictionForm({
         return;
       }
 
-      const predictionsPromises = descriptions.map(async (description) => {
+      const predictionsPromises = descriptions.map(async (description, index) => {
+        const modelCode = customModels[index]?.code || selectedModel.code;
         const [data, topCorrelated] = await Promise.all([
-          DataService.getPrediction(
-            folder,
-            checkFileName,
-            description,
-            periods,
-            selectedModel.code
-          ),
-          DataService.getTopCorrelatedMedications(
-            folder,
-            checkFileName,
-            description,
-            5
-          ),
+          DataService.getPrediction(folder, checkFileName, description, periods, modelCode),
+          DataService.getTopCorrelatedMedications(folder, checkFileName, description, 5),
         ]);
         return { description, data, topCorrelated };
       });
@@ -146,6 +152,16 @@ export default function PredictionForm({
         <div className="flex flex-col space-y-2">
           {descriptions.map((description, index) => (
             <div key={index} className="flex items-center space-x-2">
+              {selectedModel.code === "personalizado" && (
+                <Dropdown
+                  value={customModels[index]}
+                  onChange={(e) => handleCustomModelChange(e.value, index)}
+                  options={models.filter((model) => model.code !== "personalizado")}
+                  optionLabel="name"
+                  placeholder="Modelo"
+                  className="w-10rem"
+                />
+              )}
               <div className="flex-grow">
                 <AutoComplete
                   value={description}
