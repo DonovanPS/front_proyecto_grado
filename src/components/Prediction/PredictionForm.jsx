@@ -40,8 +40,6 @@ export default function PredictionForm({
   }, []);
   
   useEffect(() => {
-    console.log("models.code", selectedModel);
-    
     setCustomModels([""]); // Inicializar modelos personalizados
   }, [selectedModel]);
 
