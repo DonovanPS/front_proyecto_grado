@@ -36,9 +36,11 @@ const DataService = {
         }
     },
 
-    getTopCorrelatedMedications: async (folder_name, file_name, description, top_n) => {
+    getTopCorrelatedMedications: async (folder_name, file_name, description, top_n, model) => {
+        const apiUrl = apiUrls[model]; 
+
         try {
-            const response = await fetch(`${apiUrls.xgboost}/top_correlated`, {
+            const response = await fetch(`${apiUrl}/top_correlated`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

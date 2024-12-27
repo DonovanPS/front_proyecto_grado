@@ -8,6 +8,8 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 
+import { Analytics } from "@vercel/analytics/react"
+
 // Contexto
 import { FileProvider } from "./context/fileContex";
 

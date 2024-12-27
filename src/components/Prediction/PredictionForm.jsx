@@ -110,7 +110,7 @@ export default function PredictionForm({
         const modelCode = customModels[index]?.code || selectedModel.code;
         const [data, topCorrelated] = await Promise.all([
           DataService.getPrediction(folder, checkFileName, description, periods, modelCode),
-          DataService.getTopCorrelatedMedications(folder, checkFileName, description, 5),
+          DataService.getTopCorrelatedMedications(folder, checkFileName, description, 5, modelCode),
         ]);
         return { description, data, topCorrelated };
       });
