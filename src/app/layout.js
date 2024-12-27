@@ -9,6 +9,7 @@ import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Contexto
 import { FileProvider } from "./context/fileContex";
@@ -26,7 +27,7 @@ export default function RootLayout({ children }) {
 
       <PrimeReactProvider>
         <html lang="en">
-          <body className={`${inter.className} m-6 mx-8 `}> <Analytics />{children}</body>
+          <body className={`${inter.className} m-6 mx-8 `}> <Analytics />{children}<SpeedInsights/></body>
         </html>
       </PrimeReactProvider>
     </FileProvider>
