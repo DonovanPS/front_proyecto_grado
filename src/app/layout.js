@@ -42,7 +42,7 @@ export const metadata = {
     site: "@DonovanPicon", 
     title: "Forecasting for Social Good",
     description: "Predicciones y análisis de datos con modelos bayesianos para el bienestar social.",
-    image: "/images/og-image.jpg", 
+    image: "/images/og-image.png", 
     creator: "@DonovanPicon", 
   },
 
