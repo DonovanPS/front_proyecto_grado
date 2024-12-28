@@ -66,7 +66,8 @@ export default function RootLayout({ children }) {
 
       <PrimeReactProvider>
         <html lang="en">
-          <body className={`${inter.className} m-6 mx-8 `}> <Analytics />{children}<SpeedInsights/></body>
+        <body className={`${inter.className} p-4 md:p-6 bg-gradient-to-r from-gray-200 via-gray-100 to-white dark:from-gray-900 dark:to-gray-800`}>
+        <Analytics />{children}<SpeedInsights/></body>
         </html>
       </PrimeReactProvider>
     </FileProvider>

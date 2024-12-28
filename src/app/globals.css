@@ -44,3 +44,26 @@ body {
 .auto-complete-wide {
   width: 100% !important; 
 }
+
+
+@media (max-width: 768px) {
+  body {
+    padding: 0.5rem; /* Reducir el padding general */
+  }
+
+  .card {
+    padding: 1rem; /* Reducir padding interno */
+    margin: 0.5rem auto; /* Asegurar márgenes consistentes */
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Ajustar tamaño del texto para títulos */
+    text-align: center; /* Centrar títulos en pantallas pequeñas */
+  }
+
+  .auto-complete-wide {
+    width: 100% !important; 
+    max-width: 300px; /* Limitar ancho máximo en dispositivos móviles */
+    margin: 0 auto;
+  }
+}
