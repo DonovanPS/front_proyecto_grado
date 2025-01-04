@@ -15,11 +15,10 @@ const useScrollAnimation = (ref) => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-
           if (entry.isIntersecting) {
-            setIsVisible(true); 
+            setIsVisible(true);
           } else {
-            setIsVisible(false); 
+            setIsVisible(false);
           }
         });
       },
@@ -43,6 +42,44 @@ const useScrollAnimation = (ref) => {
   return isVisible;
 };
 
+
+const CustomizedContent = ({ item }) => {
+  const elementRef = useRef(null);
+  const isVisible = useScrollAnimation(elementRef);
+
+  return (
+    <Card
+      title={item.status}
+      subTitle={item.date}
+      className={`shadow-3 p-3 timeline-item transition-all duration-700 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+      style={{ borderRadius: "12px" }}
+      ref={elementRef}
+    >
+      <div className="flex items-center gap-2">
+        {item.image && (
+          <div className="flex-shrink-0">
+            <Image
+              src={item.image}
+              alt={item.name}
+              width={100}
+              height={100}
+              className="shadow-2 border-round"
+            />
+          </div>
+        )}
+
+        <div>
+          <p>{item.description}</p>
+          <Button
+            label="Leer más"
+            icon="pi pi-arrow-right"
+            className="p-button-text p-button-rouded"
+          />
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 export default function HomePage() {
   const events = [
@@ -85,46 +122,6 @@ export default function HomePage() {
       >
         <i className={item.icon}></i>
       </span>
-    );
-  };
-
-  const customizedContent = (item) => {
-    const elementRef = useRef(null);
-    const isVisible = useScrollAnimation(elementRef);
-
-    return (
-      <Card
-        title={item.status}
-        subTitle={item.date}
-        className={`shadow-3 p-3 timeline-item transition-all duration-700 ease-out ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-        style={{ borderRadius: "12px" }}
-        ref={elementRef}
-      >
-        <div className="flex items-center gap-2">
-          {item.image && (
-            <div className="flex-shrink-0">
-              <Image
-                src={item.image}
-                alt={item.name}
-                width={100}
-                height={100}
-                className="shadow-2 border-round"
-              />
-            </div>
-          )}
-
-          <div>
-            <p>{item.description}</p>
-            <Button
-              label="Leer más"
-              icon="pi pi-arrow-right"
-              className="p-button-text p-button-rouded"
-            />
-          </div>
-        </div>
-      </Card>
     );
   };
 
@@ -188,7 +185,7 @@ export default function HomePage() {
         align="alternate"
         className="custom-timeline"
         marker={customizedMarker}
-        content={customizedContent}
+        content={(item) => <CustomizedContent item={item} />}
       />
 
       <div className="text-center mt-12">
