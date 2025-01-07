@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import FolderSelector from "@/components/Folder/FolderSelector";
+import React, { use, useEffect, useState } from "react";
 import FileUploader from "@/components/Folder/FileUploader";
 import TableComponent from "@/components/table";
 import PredictionForm from "@/components/Prediction/PredictionForm";
@@ -10,23 +9,27 @@ import CorrelationsTable from "@/components/Prediction/CorrelationsTable";
 import PrimeReactToast from "@/components/Toast";
 import LinearProgress from "@mui/material/LinearProgress"; // Importar LinearProgress
 import { ProgressBar } from "primereact/progressbar";
+import { Button } from "primereact/button";
+import { useFileContext } from "@/app/context/fileContex";
+
 
 export default function Page() {
   const [showTableAndPredictions, setShowTableAndPredictions] = useState(false);
   const [predictionData, setPredictionData] = useState([]);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [descriptions, setDescriptions] = useState(['']);
+  const { folder } = useFileContext();
 
-  
   const addDescriptionField = (newDescription) => {
     setDescriptions([...descriptions, newDescription]);
   };
 
+
   return (
     <>
-      <FolderSelector setShowTableAndPredictions={setShowTableAndPredictions} />
-
-      {showTableAndPredictions && (
+      
+    
+     
         <>
           <FileUploader />
           <TableComponent />
@@ -36,11 +39,11 @@ export default function Page() {
 
             <PredictionForm
               setPredictionData={setPredictionData}
-              setLoading={setLoading} 
-              loading={loading} 
+              setLoading={setLoading}
+              loading={loading}
               descriptions={descriptions} // Pasar descripciones
               setDescriptions={setDescriptions} // Pasar función para actualizar descripciones
-            
+
             />
             {loading && (
               <div className="mt-4">
@@ -49,10 +52,10 @@ export default function Page() {
             )}
 
             <PredictionGraph predictionData={predictionData} />
-            <CorrelationsTable predictionData={predictionData} addDescriptionField={addDescriptionField}  />
+            <CorrelationsTable predictionData={predictionData} addDescriptionField={addDescriptionField} />
           </div>
         </>
-      )}
+    
       <PrimeReactToast />
     </>
   );

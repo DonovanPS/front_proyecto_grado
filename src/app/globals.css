@@ -67,3 +67,23 @@ body {
     margin: 0 auto;
   }
 }
+
+
+
+/* Estilos para la línea de tiempo personalizada */
+@layer utilities {
+  .customized-timeline {
+    gap: 2rem; /* Espaciado entre los eventos */
+  }
+
+  /* En dispositivos pequeños (móviles), todos los eventos se alinean a la izquierda */
+  @media (max-width: 768px) {
+    .customized-timeline .p-timeline-event {
+      display: flex;
+      flex-direction: column;  
+       width: 100%;
+    }
+
+   
+  }
+}
