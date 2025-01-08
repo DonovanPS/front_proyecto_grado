@@ -211,7 +211,6 @@ export default function HomePage() {
         header="Seleccione una carpeta"
         visible={visible}
         onHide={() => setVisible(false)}
-        className="w-full sm:w-3/4 lg:w-1/2"
       >
         <div className="flex flex-col justify-center items-center w-full h-full">
           <FolderSelector setShowTableAndPredictions={setShowTableAndPredictions} />
