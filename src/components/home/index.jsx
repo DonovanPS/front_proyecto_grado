@@ -11,9 +11,10 @@ import "./bootstrap.css";
 import "./maicons.css";
 import "./theme.css";
 
+
 import { Divider } from "primereact/divider";
 import { Dialog } from "primereact/dialog";
-import FolderSelector from "../Folder/FolderSelector";
+import FolderSelector from "@/components/Folder/FolderSelector";
 
 // --- Custom Hook for Scroll Animation ---
 const useScrollAnimation = (ref) => {
@@ -148,19 +149,10 @@ export default function IndexComponent() {
       {/* --- Navbar Section --- */}
       <nav className="navbar navbar-expand-lg navbar-light navbar-float">
         <div className="container">
-          <a href="index.html" className="navbar-brand text-white">
+          <a href="index.html" className="navbar-brand text-white no-underline">
             Fore<span className="text-primary">Casting.</span>
           </a>
-          <button
-            className="navbar-toggler"
-            data-toggle="collapse"
-            data-target="#navbarContent"
-            aria-controls="navbarContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
+        
         </div>
       </nav>
 
@@ -354,7 +346,7 @@ export default function IndexComponent() {
                 través de modelos predictivos.
               </p>
               <p>
-                <a href="mailto:donovan.picon.sossa@gmail.com">
+                <a className="no-underline" href="mailto:donovan.picon.sossa@gmail.com ">
                   donovan.picon.sossa@gmail.com
                 </a>
               </p>

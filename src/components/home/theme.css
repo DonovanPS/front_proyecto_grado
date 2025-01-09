@@ -20,13 +20,13 @@ body {
   color: #2D2B3A;
 }
 
-a {
+.bootstrap-container a {
   color: #6C55F9;
   text-decoration: none;
   background-color: transparent;
 }
 
-a:hover {
+.bootstrap-container a:hover {
   color: #5641df;
   text-decoration: underline;
 }
@@ -1020,7 +1020,7 @@ a.text-dark:hover, a.text-dark:focus {
   color: #8e8aad;
 }
 
-.breadcrumb-dark .breadcrumb-item a {
+.breadcrumb-dark .breadcrumb-item .bootstrap-container a {
   color: #6C55F9;
 }
 
@@ -1456,7 +1456,7 @@ a.text-dark:hover, a.text-dark:focus {
 }
 
 .page-banner .breadcrumb-item,
-.page-banner .breadcrumb-item a {
+.page-banner .breadcrumb-item .bootstrap-container a {
   font-size: 14px;
 }
 
@@ -1743,7 +1743,7 @@ a.text-dark:hover, a.text-dark:focus {
   font-size: 18px;
 }
 
-.card-blog .post-title a {
+.card-blog .post-title .bootstrap-container a {
   font-weight: 500;
   color: #2D2B3A;
 }
@@ -1765,7 +1765,7 @@ a.text-dark:hover, a.text-dark:focus {
 
 .card-blog-row *:first-child .card-blog .post-author,
 .card-blog-row *:first-child .card-blog .post-title a,
-.card-blog-row *:first-child .card-blog .footer a {
+.card-blog-row *:first-child .card-blog .footer .bootstrap-container a {
   color: #fff;
 }
 
@@ -1840,7 +1840,7 @@ a.text-dark:hover, a.text-dark:focus {
   color: #8e8aad;
 }
 
-.contact-list .content a {
+.contact-list .content .bootstrap-container a {
   color: #8e8aad;
 }
 
@@ -1854,7 +1854,7 @@ a.text-dark:hover, a.text-dark:focus {
   border-top: 1px solid #ffffff00;
 }
 
-.page-footer p a {
+.page-footer p .bootstrap-container  a {
   transition: color .2s ease;
 }
 
@@ -1896,7 +1896,7 @@ a.text-dark:hover, a.text-dark:focus {
   text-decoration: none;
 }
 
-.sosmed-button a {
+.sosmed-button .bootstrap-container a {
   display: inline-block;
   width: 40px;
   height: 40px;
@@ -2010,8 +2010,8 @@ a.text-dark:hover, a.text-dark:focus {
   display: inline-block;
 }
 
-.blog-single-wrap .post-meta .post-date a,
-.blog-single-wrap .post-meta .post-comment-count a {
+.blog-single-wrap .post-meta .post-date .bootstrap-container  a,
+.blog-single-wrap .post-meta .post-comment-count .bootstrap-container  a {
   color: #645F88;
 }
 
@@ -2066,7 +2066,7 @@ a.text-dark:hover, a.text-dark:focus {
   padding-left: 0;
 }
 
-.categories li a {
+.categories .bootstrap-container  li a {
   display: block;
   padding: 6px;
   color: #a4a1c8;
@@ -2105,7 +2105,7 @@ a.text-dark:hover, a.text-dark:focus {
   height: 100%;
 }
 
-.blog-item .post-title a {
+.blog-item .post-title .bootstrap-container a {
   color: #8e8aad;
   transition: all .2s ease;
 }
@@ -2115,7 +2115,7 @@ a.text-dark:hover, a.text-dark:focus {
   text-decoration: none;
 }
 
-.blog-item .meta a {
+.blog-item .meta .bootstrap-container a {
   margin-right: 6px;
   font-size: 12px;
   color: #645F88;
