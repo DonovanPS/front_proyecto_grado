@@ -27,9 +27,6 @@ export default function Page() {
 
   return (
     <>
-      
-    
-     
         <>
           <FileUploader />
           <TableComponent />
