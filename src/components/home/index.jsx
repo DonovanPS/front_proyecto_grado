@@ -11,7 +11,6 @@ import "./bootstrap.css";
 import "./maicons.css";
 import "./theme.css";
 
-
 import { Divider } from "primereact/divider";
 import { Dialog } from "primereact/dialog";
 import FolderSelector from "@/components/Folder/FolderSelector";
@@ -44,7 +43,7 @@ const useScrollAnimation = (ref) => {
 };
 
 // --- Customized Content Component for Timeline ---
-const CustomizedContent = ({ item }) => {
+const CustomizedContent = ({ item, onOpenModal}) => {
   const elementRef = useRef(null);
   const isVisible = useScrollAnimation(elementRef);
 
@@ -81,6 +80,7 @@ const CustomizedContent = ({ item }) => {
           label="Leer más"
           icon="pi pi-arrow-right"
           className="p-button-text p-button-rounded"
+          onClick={() => onOpenModal(item.videoSrc)}
         />
       </div>
     </Card>
@@ -91,6 +91,7 @@ const CustomizedContent = ({ item }) => {
 export default function IndexComponent() {
   const [visible, setVisible] = useState(false);
   const [showTableAndPredictions, setShowTableAndPredictions] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -108,6 +109,7 @@ export default function IndexComponent() {
       image: "/images/carga-de-archivos.png",
       description:
         "Carga tus propios datos o utiliza los conjuntos de datos de demostración incluidos.",
+      videoSrc: "/videos/paso1.mp4",
     },
     {
       status: "Selección de Modelo",
@@ -144,6 +146,63 @@ export default function IndexComponent() {
     </span>
   );
 
+  const handleOpenModal = (videoSrc) => {
+    setSelectedVideo(videoSrc);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedVideo(null);
+  };
+
+  // Modal video
+
+  const ModalVideo = ({ videoSrc, visible, onHide }) => {
+    const videoRef = useRef(null);
+
+    useEffect(() => {
+      if (visible && videoRef.current) {
+        videoRef.current.play().catch((error) => {
+          // Manejar error de autoplay
+          console.log("Autoplay error:", error);
+        });
+      }
+    }, [visible]);
+
+    return (
+      <Dialog
+        header="Paso a Paso"
+        visible={visible}
+        onHide={onHide}
+        dismissableMask
+        style={{
+          width: 'min(600px, 90vw)', 
+          borderRadius: '12px'
+        }}
+        contentStyle={{
+          padding: 0,
+          aspectRatio: '16/9', 
+          overflow: 'hidden'
+        }}
+      >
+        <video
+          ref={videoRef}
+          width="100%"
+          height="100%"
+          style={{
+            objectFit: 'cover', 
+            borderRadius: '12px'
+          }}
+          autoPlay
+          loop
+          muted
+          playsInline
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      </Dialog>
+    );
+  };
+
   return (
     <div>
       {/* --- Navbar Section --- */}
@@ -152,7 +211,6 @@ export default function IndexComponent() {
           <a href="index.html" className="navbar-brand text-white no-underline">
             Fore<span className="text-primary">Casting.</span>
           </a>
-        
         </div>
       </nav>
 
@@ -229,7 +287,15 @@ export default function IndexComponent() {
             align="alternate"
             className="customized-timeline"
             marker={customizedMarker}
-            content={(item) => <CustomizedContent item={item} />}
+            content={(item) => (
+              <CustomizedContent item={item} onOpenModal={handleOpenModal} />
+            )}
+          />
+
+          <ModalVideo
+            videoSrc={selectedVideo}
+            visible={!!selectedVideo}
+            onHide={handleCloseModal}
           />
         </div>
 
@@ -346,7 +412,10 @@ export default function IndexComponent() {
                 través de modelos predictivos.
               </p>
               <p>
-                <a className="no-underline" href="mailto:donovan.picon.sossa@gmail.com ">
+                <a
+                  className="no-underline"
+                  href="mailto:donovan.picon.sossa@gmail.com "
+                >
                   donovan.picon.sossa@gmail.com
                 </a>
               </p>
