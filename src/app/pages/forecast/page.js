@@ -18,7 +18,18 @@ export default function Page() {
   const [predictionData, setPredictionData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [descriptions, setDescriptions] = useState(['']);
-  const { folder } = useFileContext();
+  const { folder, setFolder } = useFileContext(); 
+
+  
+  useEffect(() => {
+    // Si folder está vacío en el contexto, carga desde el localStorage
+    if (!folder) {
+      const storedFolderPath = localStorage.getItem("folderPath");
+      if (storedFolderPath) {
+        setFolder(storedFolderPath); // Establecerlo en el contexto
+      }
+    }
+  }, [folder, setFolder]);
 
   const addDescriptionField = (newDescription) => {
     setDescriptions([...descriptions, newDescription]);
@@ -32,7 +43,7 @@ export default function Page() {
           <TableComponent />
 
           <div className="card predicciones relative">
-            <h2 className="card-title">Predicciones</h2>
+            <h2 className="card-title" style={{color: 'white'}}>Predicciones</h2>
 
             <PredictionForm
               setPredictionData={setPredictionData}

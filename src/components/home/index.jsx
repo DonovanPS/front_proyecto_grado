@@ -43,7 +43,7 @@ const useScrollAnimation = (ref) => {
 };
 
 // --- Customized Content Component for Timeline ---
-const CustomizedContent = ({ item, onOpenModal}) => {
+const CustomizedContent = ({ item, onOpenModal }) => {
   const elementRef = useRef(null);
   const isVisible = useScrollAnimation(elementRef);
 
@@ -80,7 +80,9 @@ const CustomizedContent = ({ item, onOpenModal}) => {
           label="Leer más"
           icon="pi pi-arrow-right"
           className="p-button-text p-button-rounded"
-          onClick={() => onOpenModal(item.videoSrc)}
+          onClick={() =>
+            onOpenModal(item.videoSrc, item.detailedDescription, item.date)
+          }
         />
       </div>
     </Card>
@@ -92,6 +94,8 @@ export default function IndexComponent() {
   const [visible, setVisible] = useState(false);
   const [showTableAndPredictions, setShowTableAndPredictions] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedDescription, setSelectedDescription] = useState(null);
+  const [step, setStep] = useState(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -102,38 +106,101 @@ export default function IndexComponent() {
 
   const events = [
     {
-      status: "Carga de Datos",
+      status: "Explora la Plataforma",
       date: "Paso 1",
-      icon: "pi pi-upload",
+      icon: "pi pi-compass",
       color: "#1ABC9C",
+      description:
+        "Accede a la plataforma explorando las carpetas de datos. Introduce el nombre de la carpeta y decide si acceder a una existente o crear una nueva.",
+      videoSrc: "/videos/paso1.mp4",
+      detailedDescription:
+        "Acceso a la plataforma:\n\n" +
+        "1. Haz clic en 'Explora la plataforma'\n" +
+        "2. **Introduce nombre de carpeta** (Ej: 'demo')\n" +
+        "3. El sistema verificará:\n" +
+        "   - **Carpeta existente**: Click en 'Acceder'\n" +
+        "   - **Carpeta nueva**: Click en 'Crear'\n\n" +
+        "Listo para cargar datos en el siguiente paso.",
+    },
+
+    {
+      status: "Carga de Datos",
+      date: "Paso 2",
+      icon: "pi pi-upload",
+      color: "#3498DB",
       image: "/images/carga-de-archivos.png",
       description:
         "Carga tus propios datos o utiliza los conjuntos de datos de demostración incluidos.",
       videoSrc: "/videos/paso1.mp4",
+      detailedDescription:
+        "Carga de archivos:\n\n" +
+        "1. **Seleccionar archivo**:\n" +
+        "   - Click en 'Seleccionar' y elige tu archivo\n" +
+        "   - O arrástralo directamente al área marcada\n\n" +
+        "2. **Iniciar carga**:\n" +
+        "   - Click en 'Subir' para cargar el archivo\n\n" +
+        "3. Confirmación:\n" +
+        "   - Mensaje de éxito al completarse\n" +
+        "   - Archivo visible en la tabla\n\n" +
+        "Listo para seleccionar modelos en el siguiente paso.",
     },
     {
       status: "Selección de Modelo",
-      date: "Paso 2",
+      date: "Paso 3",
       icon: "pi pi-cog",
-      color: "#3498DB",
-      description:
-        "Compara predicciones generadas por diferentes modelos matemáticos avanzados.",
+      color: "#E67E22",
+      videoSrc: "/videos/paso1.mp4",
+      description: "Compara predicciones generadas por diferentes modelos.",
+      detailedDescription:
+        "Configuración de modelos:\n\n" +
+        "1. **Elegir tipo de modelo**:\n" +
+        "   - Predeterminado: Aplicar mismo modelo a todos\n" +
+        "   - **Personalizado**: Modelo diferente por medicamento\n\n" +
+        "2. **Seleccionar medicamentos**:\n" +
+        "   - Autocompletado con nombres del archivo cargado\n" +
+        "   - Agrega múltiples con el botón '+'\n\n" +
+        "3. **Definir período**:\n" +
+        "   - Meses a predecir (ej: 6 meses)\n\n" +
+        "4. **Generar predicciones**:\n" +
+        "   - Click en 'Obtener Predicción'" 
+        
     },
     {
       status: "Generación de Predicciones",
-      date: "Paso 3",
+      date: "Paso 4",
       icon: "pi pi-chart-line",
-      color: "#E67E22",
+      color: "#E74C3C",
+      videoSrc: "/videos/paso1.mp4",
       description:
         "Genera predicciones utilizando la lógica bayesiana para diferentes escenarios.",
+      detailedDescription:
+        "Proceso de predicción:\n\n" +
+        "1. **Iniciar cálculo**:\n" +
+        "   - El sistema procesará cada medicamento seleccionado\n" +
+        "   - Barra de progreso visible durante el cálculo\n\n" +
+        "2. **Visualización inicial**:\n" +
+        "   - Gráfico principal con tendencia predictiva"
     },
     {
       status: "Análisis de Resultados",
-      date: "Paso 4",
+      date: "Paso 5",
       icon: "pi pi-eye",
-      color: "#E74C3C",
+      color: "#9B59B6",
+      videoSrc: "/videos/paso1.mp4",
       description:
         "Analiza los resultados obtenidos a través de gráficos interactivos y métricas clave.",
+        detailedDescription:
+        "Exploración de resultados:\n\n" +
+        "1. **Herramientas visuales**:\n" +
+        "   - Zoom en períodos específicos\n" +
+        "   - Filtros por rango de fechas\n\n" +
+        "2. **Comparación**:\n" +
+        "   - Superposición de múltiples predicciones\n" +
+        "   - Análisis comparativo entre modelos\n\n" +
+        "4. **Exportación**:\n" +
+        "   - Descarga de gráficos en PNG/PDF\n" +
+        "   - Exportar datos a CSV/Excel" 
+     
     },
   ];
 
@@ -146,17 +213,27 @@ export default function IndexComponent() {
     </span>
   );
 
-  const handleOpenModal = (videoSrc) => {
+  const handleOpenModal = (videoSrc, detailedDescription, date) => {
     setSelectedVideo(videoSrc);
+    setSelectedDescription(detailedDescription);
+    setStep(date);
   };
 
   const handleCloseModal = () => {
     setSelectedVideo(null);
+    setSelectedDescription(null);
   };
 
   // Modal video
 
-  const ModalVideo = ({ videoSrc, visible, onHide }) => {
+  const ModalVideo = ({
+    videoSrc,
+    visible,
+    onHide,
+    step,
+    detailedDescription,
+  }) => {
+    // Añadimos 'detailedDescription' como prop
     const videoRef = useRef(null);
 
     useEffect(() => {
@@ -170,35 +247,61 @@ export default function IndexComponent() {
 
     return (
       <Dialog
-        header="Paso a Paso"
+        header={step}
         visible={visible}
         onHide={onHide}
         dismissableMask
         style={{
-          width: 'min(600px, 90vw)', 
-          borderRadius: '12px'
+          width: "min(600px, 90vw)",
+          borderRadius: "12px",
         }}
         contentStyle={{
           padding: 0,
-          aspectRatio: '16/9', 
-          overflow: 'hidden'
+          overflow: "hidden", // Importante para que el contenido no se desborde del contenedor con aspectRatio
         }}
       >
-        <video
-          ref={videoRef}
-          width="100%"
-          height="100%"
-          style={{
-            objectFit: 'cover', 
-            borderRadius: '12px'
-          }}
-          autoPlay
-          loop
-          muted
-          playsInline
-        >
-          <source src={videoSrc} type="video/mp4" />
-        </video>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {" "}
+          {/* Usamos un contenedor flex vertical */}
+          <div style={{ aspectRatio: "16/9", overflow: "hidden" }}>
+            {" "}
+            {/* Contenedor para el video con aspectRatio */}
+            <video
+              ref={videoRef}
+              width="100%"
+              height="100%"
+              style={{
+                objectFit: "cover",
+                borderRadius: "12px 12px 0 0", // Bordes redondeados solo en la parte superior
+              }}
+              autoPlay
+              loop
+              muted
+              playsInline
+            >
+              <source src={videoSrc} type="video/mp4" />
+            </video>
+          </div>
+          {detailedDescription && (
+            <div style={{ padding: "1rem", borderRadius: "0 0 12px 12px" }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.9rem",
+                  lineHeight: "1.6",
+                  color: "#f9f9f9",
+                  whiteSpace: "pre-line",
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: detailedDescription.replace(
+                    /\*\*(.*?)\*\*/g,
+                    "<strong>$1</strong>"
+                  ),
+                }}
+              />
+            </div>
+          )}
+        </div>
       </Dialog>
     );
   };
@@ -243,19 +346,19 @@ export default function IndexComponent() {
             <div className="row justify-content-center">
               {[
                 {
-                  title: "Carga de Datos",
+                  title: "Prophet",
                   description:
-                    "Carga tus propios datos o utiliza los conjuntos de datos de demostración incluidos.",
+                    "Prophet es un modelo predictivo que utiliza la lógica bayesiana para el pronóstico de series temporales.  Está diseñado para manejar datos con estacionalidad y tendencias, realizando predicciones robustas y proporcionando intervalos de confianza que reflejan la incertidumbre inherente en los pronósticos.",
                 },
                 {
-                  title: "Modelos Bayesianos",
+                  title: "SARIMAX",
                   description:
-                    "Compara predicciones generadas por diferentes modelos matemáticos avanzados.",
+                    "SARIMAX es un modelo avanzado que emplea la lógica bayesiana para el análisis de series temporales complejas.  Permite modelar patrones estacionales y la influencia de variables externas, ofreciendo predicciones detalladas y adaptadas a series temporales con múltiples factores.",
                 },
                 {
-                  title: "Análisis Visual",
+                  title: "XGBoost",
                   description:
-                    "Explora gráficos interactivos y relaciones entre variables clave.",
+                    "XGBoost es un modelo predictivo de alto rendimiento que, utilizando una lógica avanzada inspirada en principios bayesianos,  permite realizar predicciones precisas y eficientes.  Es especialmente potente para capturar relaciones complejas en los datos y ofrece resultados robustos en diversas tareas predictivas.",
                 },
               ].map((feature, index) => (
                 <div
@@ -296,6 +399,8 @@ export default function IndexComponent() {
             videoSrc={selectedVideo}
             visible={!!selectedVideo}
             onHide={handleCloseModal}
+            detailedDescription={selectedDescription}
+            step={step}
           />
         </div>
 

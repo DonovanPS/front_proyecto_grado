@@ -118,6 +118,7 @@ export default function FolderSelector({ setShowTableAndPredictions }) {
   const handleAccessFolder = () => {
     setFolder(folderPath);
     setShowTableAndPredictions(true);
+    localStorage.setItem("folderPath", folderPath);
     clear();
   };
 
@@ -133,6 +134,7 @@ export default function FolderSelector({ setShowTableAndPredictions }) {
         });
         setFolder(folderPath);
         setShowTableAndPredictions(true);
+        localStorage.setItem("folderPath", folderPath);
       })
       .catch((error) => {
         setAlertMessage({
