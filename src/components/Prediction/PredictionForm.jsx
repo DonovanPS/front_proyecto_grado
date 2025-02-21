@@ -108,11 +108,13 @@ export default function PredictionForm({
 
       const predictionsPromises = descriptions.map(async (description, index) => {
         const modelCode = customModels[index]?.code || selectedModel.code;
-        const [data, topCorrelated] = await Promise.all([
+        const [data, topCorrelated, evaluateModel] = await Promise.all([
           DataService.getPrediction(folder, checkFileName, description, periods, modelCode),
           DataService.getTopCorrelatedMedications(folder, checkFileName, description, 5, modelCode),
+          DataService.getEvaluateModel(folder, checkFileName, description, 55656, modelCode),
+
         ]);
-        return { description, data, topCorrelated };
+        return { description, data, topCorrelated, evaluateModel };
       });
 
       const predictions = await Promise.all(predictionsPromises);

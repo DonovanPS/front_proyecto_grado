@@ -7,9 +7,8 @@ import PredictionForm from "@/components/Prediction/PredictionForm";
 import PredictionGraph from "@/components/Prediction/PredictionGraph";
 import CorrelationsTable from "@/components/Prediction/CorrelationsTable";
 import PrimeReactToast from "@/components/Toast";
-import LinearProgress from "@mui/material/LinearProgress"; // Importar LinearProgress
+import LinearProgress from "@mui/material/LinearProgress";
 import { ProgressBar } from "primereact/progressbar";
-import { Button } from "primereact/button";
 import { useFileContext } from "@/app/context/fileContex";
 
 
@@ -34,6 +33,8 @@ export default function Page() {
   const addDescriptionField = (newDescription) => {
     setDescriptions([...descriptions, newDescription]);
   };
+
+ 
 
 
   return (
@@ -60,7 +61,7 @@ export default function Page() {
             )}
 
             <PredictionGraph predictionData={predictionData} />
-            <CorrelationsTable predictionData={predictionData} addDescriptionField={addDescriptionField} />
+            <CorrelationsTable predictionData={predictionData} addDescriptionField={addDescriptionField}  />
           </div>
         </>
     

@@ -59,6 +59,32 @@ const DataService = {
             throw error;
         }
     },
+
+
+    getEvaluateModel: async (folder_name, file_name, description, periods, model) => {
+        
+        const apiUrl = apiUrls[model]; 
+        try {
+            const response = await fetch(`${apiUrl}/evaluate-model`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ folder_name, file_name, description, periods }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error in DataService.getEvaluateModel:', error);
+            throw error;
+        }
+        
+    }
 };
 
 
