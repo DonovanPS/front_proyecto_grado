@@ -1,4 +1,4 @@
-import { S3Client, ListObjectsV2Command, PutObjectCommand, GetObjectCommand   } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { read, utils } from 'xlsx';
 
@@ -18,7 +18,7 @@ const bucketName = process.env.AWS_BUCKET_NAME;
 // Función para validar si una carpeta existe en S3
 export const validFolder = async (folderPath) => {
   try {
-   
+
     if (!folderPath) {
       throw new Error("Folder path is required");
     }
@@ -30,7 +30,7 @@ export const validFolder = async (folderPath) => {
       MaxKeys: 1,
     };
 
-    
+
     const command = new ListObjectsV2Command(params);
     const response = await s3Client.send(command);
 
@@ -91,7 +91,7 @@ export const uploadFile = async (files, folder) => {
     if (!files || files.length === 0) {
       throw new Error("No files provided for upload");
     }
-    
+
     if (!folder) {
       throw new Error("Folder path is required");
     }
@@ -224,12 +224,23 @@ export const getDescriptions = async (folderPath, fileName) => {
 
     // Leer el contenido del archivo Excel
     const workbook = read(buffer, { type: 'buffer' });
-    const sheetName = workbook.SheetNames[0]; // Asumiendo que las descripciones están en la primera hoja
+    const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
 
-    // Extraer la columna de descripciones (suponiendo que están en la columna 'A')
+    // Extraer los encabezados
     const data = utils.sheet_to_json(sheet, { header: 1 });
-    const descriptions = data.map((row) => row[0]).slice(1); // Quitar el encabezado
+    const headers = data[0]; // La primera fila contiene los encabezados
+
+    // Buscar el índice de la columna 'DESCRIPCION'
+    const descripcionIndex = headers.indexOf("DESCRIPCION");
+    if (descripcionIndex === -1) {
+      throw new Error("La columna 'DESCRIPCION' no se encuentra en el archivo");
+    }
+
+    // Extraer la columna de descripciones
+    const descriptions = data.slice(1).map((row) => row[descripcionIndex]); // Quitar el encabezado
+
+
 
     return {
       success: true,
