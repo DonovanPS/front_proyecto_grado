@@ -43,13 +43,13 @@ export default function Page() {
     // Contexto
     const { setFolder } = useFileContext(); // nombre de la carpeta desde el contexto
     const { checkFileName } = useFileContext(); // nombre del archivo desde el contexto
-    const [fileName, setFileName] = useState(''); 
+    const [fileName, setFileName] = useState('');
 
     useEffect(() => {
         if (checkFileName) {
-            setFileName(checkFileName); 
+            setFileName(checkFileName);
         }
-    }, [checkFileName]); 
+    }, [checkFileName]);
 
 
     // ---------------------------------------------------
@@ -143,7 +143,7 @@ export default function Page() {
         }
     };
 
-    const ShowTableAndPrediction = () => {        
+    const ShowTableAndPrediction = () => {
         setShowTableAndPredictions(true);
         setFolder(folderPath);
 
@@ -270,7 +270,7 @@ export default function Page() {
         setLoading(true); // Inicia la carga
         try {
 
-            if(fileName === ''){
+            if (fileName === '') {
                 toast.current.show({
                     severity: "warn",
                     summary: "Archivo no seleccionado",
@@ -280,14 +280,14 @@ export default function Page() {
                 setLoading(false);
                 return;
             }
-            
+
 
             // crear un array de promesas
             const predictionsPromises = descriptions.map(async (description) => {
                 // Ejecutar ambas peticiones en paralelo para cada descripción
                 const [data, topCorrelated] = await Promise.all([
-                    DataService.getPrediction(folderPath,fileName, description, periods),
-                    DataService.getTopCorrelatedMedications(folderPath, fileName,description, 5),
+                    DataService.getPrediction(folderPath, fileName, description, periods),
+                    DataService.getTopCorrelatedMedications(folderPath, fileName, description, 5),
                 ]);
                 return { description, data, topCorrelated };
             });
@@ -413,6 +413,303 @@ export default function Page() {
                 </Grid>
             </div>
 
+
+
+            <div className="card">
+                <h2 className="card-title">Título del Componente</h2>
+                <Grid xs={12} md={6} lg={8}>
+                    <ComponentPredictionPraph
+                        title="Website Visits"
+                        subheader="(+43%) than last year"
+                        chart={{
+                            labels: [
+                                '01/01/2003',
+                                '02/01/2003',
+                                '03/01/2003',
+                                '04/01/2003',
+                                '05/01/2003',
+                                '06/01/2003',
+                                '07/01/2003',
+                                '08/01/2003',
+                                '09/01/2003',
+                                '10/01/2003',
+                                '11/01/2003',
+                            ],
+                            series: [
+                                {
+                                    name: 'Team A',
+                                    type: 'column',
+                                    data: [null, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
+                                },
+                                {
+                                    name: 'Team B',
+                                    type: 'area',
+                                    data: [46, 68, 83, 39, 22, 43, 21, 41, 56, 27, 43],
+                                },
+                                {
+                                    name: 'Team C',
+                                    type: 'line',
+                                    data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
+                                },
+
+                            ],
+                            options: {
+                                chart: {
+                                    stacked: false,
+                                    toolbar: { show: false },
+                                },
+                                yaxis: {
+                                    min: 0,
+                                    max: 100,
+                                },
+                                annotations: {
+                                    yaxis: [
+                                        {
+                                            y: 50,
+                                            y2: 80, // Define el rango de la zona media
+                                            borderColor: '#00FF00', // Color del borde de la zona
+                                            fillColor: '#FFA500', // Color de relleno de la zona
+                                            opacity: 0.2, // Opacidad de la zona
+                                            label: {
+                                                text: '± Desv. Estándar',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#FFA500',
+                                                },
+                                            },
+                                        },
+
+                                        {
+                                            y: 65, // Valor del promedio
+                                            borderColor: '#00008B', // Color de la línea (Azul oscuro)
+                                            strokeDashArray: 4, // Línea punteada
+                                            label: {
+                                                text: 'Promedio',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#00008B',
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        }}
+                    />
+
+
+                </Grid>
+            </div>
+
+
+
+
+            <div className="card">
+                <h2 className="card-title">Comparación de Métricas por Modelo22</h2>
+                <Grid xs={12} md={6} lg={8}>
+                    <ComponentPredictionPraph
+                        title="Métricas de Modelos"
+                        subheader="Comparación entre los modelos de predicción"
+                        chart={{
+                            labels: ['', 'Prophet', 'XGBoost', 'SARIMAX', ''],
+
+                            series: [
+                                {
+                                    name: 'MAPE (CV)',
+                                    type: 'column',
+                                    data: [null, 0.97, 25.55, 14.51, null],
+                                },
+                                {
+                                    name: 'RMSE (CV)',
+                                    type: 'column',
+                                    data: [null, 263.56, 214.51, 79.06],
+                                },
+                                {
+                                    name: 'MAE (CV)',
+                                    type: 'column',
+                                    data: [null, 224.75, 162.94, 66.34],
+                                },
+                            ],
+
+                            options: {
+                                chart: {
+
+
+                                },
+                                yaxis: {
+                                    min: 0,
+                                    max: 750,
+                                },
+                                annotations: {
+
+                                    yaxis: [
+                                        {
+                                            y: 479.56 - 173.94,
+                                            y2: 479.56 + 173.94, // Define el rango de la zona media
+                                            borderColor: '#00FF00', // Color del borde de la zona
+                                            fillColor: '#FFA500', // Color de relleno de la zona
+                                            opacity: 0.2, // Opacidad de la zona
+                                            label: {
+                                                text: '± Desv. Estándar',
+                                                offsetX: -10,
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#FFA500',
+                                                },
+                                            },
+                                        },
+
+                                        {
+                                            y: 479.56, // Valor del promedio
+                                            borderColor: '#00008B', // Color de la línea (Azul oscuro)
+                                            strokeDashArray: 4, // Línea punteada
+                                            label: {
+                                                text: 'Promedio',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#00008B',
+                                                },
+                                            },
+                                        },
+
+
+                                        {
+                                            y: 711,
+                                            borderColor: '#ff0000',
+                                            strokeDashArray: 4,
+                                            label: {
+                                                text: 'Maximo',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#ff0000',
+                                                },
+                                            },
+                                        },
+
+
+                                        {
+                                            y: 52,
+                                            borderColor: '#008000',
+                                            strokeDashArray: 4,
+                                            label: {
+                                                text: 'Mínimo',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#008000',
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        }}
+                    />
+                </Grid>
+            </div>
+
+
+
+            <div className="card">
+                <h2 className="card-title">Comparación de Métricas por Modelo1</h2>
+                <Grid xs={12} md={6} lg={8}>
+                    <ComponentPredictionPraph
+                        title="Métricas de Modelos"
+                        subheader="Comparación entre los modelos de predicción"
+                        chart={{
+                            labels: ['Prophet', 'XGBoost', 'SARIMAX'],
+                            series: [
+                                {
+                                    name: 'MAPE (CV)',
+                                    type: 'column',
+                                    data: [0.97, 25.55, 14.51],
+                                },
+                                {
+                                    name: 'RMSE (CV)',
+                                    type: 'column',
+                                    data: [263.56, 214.51, 79.06],
+                                },
+                                {
+                                    name: 'MAE (CV)',
+                                    type: 'column',
+                                    data: [224.75, 162.94, 66.34],
+                                },
+                            ],
+                            options: {
+                                chart: {
+
+                                },
+
+                                xaxis: {
+                                    type: 'category',
+                                    categories: ['Prophet', 'XGBoost', 'SARIMAX'],
+                                    tickPlacement: 'between', // Posiciona los ticks entre las categorías
+                                },
+                                yaxis: {
+                                    min: 0,
+                                    max: 750,
+                                },
+                                annotations: {
+                                    yaxis: [
+                                        {
+                                            y: 479.56 - 173.94,
+                                            y2: 479.56 + 173.94,
+                                            borderColor: '#00FF00',
+                                            fillColor: '#FFA500',
+                                            opacity: 0.2,
+                                            label: {
+                                                text: '± Desv. Estándar',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#FFA500',
+                                                },
+                                            },
+                                        },
+                                        {
+                                            y: 479.56,
+                                            borderColor: '#00008B',
+                                            strokeDashArray: 4,
+                                            label: {
+                                                text: 'Promedio',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#00008B',
+                                                },
+                                            },
+                                        },
+                                        {
+                                            y: 711,
+                                            borderColor: '#ff0000',
+                                            strokeDashArray: 4,
+                                            label: {
+                                                text: 'Máximo',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#ff0000',
+                                                },
+                                            },
+                                        },
+                                        {
+                                            y: 52,
+                                            borderColor: '#008000',
+                                            strokeDashArray: 4,
+                                            label: {
+                                                text: 'Mínimo',
+                                                style: {
+                                                    color: '#fff',
+                                                    background: '#008000',
+                                                },
+                                            },
+                                        },
+                                    ],
+                                },
+                            },
+                        }}
+                    />
+                </Grid>
+            </div>
+
+
+
             <div className="card predicciones relative">
                 <h2 className="card-title">Predicciones</h2>
 
@@ -489,8 +786,8 @@ export default function Page() {
 
                         console.log(data);
                         console.log(predictions);
-                        
-                        
+
+
                         const historicalSeriesData = [
                             ...historicalValues,
                             ...Array(predictionValues.length - 1).fill(null),

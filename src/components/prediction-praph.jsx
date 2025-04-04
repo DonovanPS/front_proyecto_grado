@@ -26,6 +26,18 @@ export default function ComponentPredictionPraph({ title, subheader, chart, ...o
         return formattedValue.endsWith('.0') ? formattedValue.slice(0, -2) : formattedValue;
     };
 
+
+    // Función para verificar si una cadena es una fecha válida
+    const isValidDate = (dateStr) => !isNaN(Date.parse(dateStr));
+
+    // Determinar si todas las etiquetas son fechas válidas
+    const areDates = labels.every(isValidDate);
+
+
+    const xaxisConfig = areDates
+    ? { type: 'datetime' } // Si son fechas, usar datetime
+    : { type: 'category', categories: labels }; // Si son strings, usar category y asignar las categorías
+
     const chartOptions = {
         colors,
         plotOptions: {
@@ -38,7 +50,7 @@ export default function ComponentPredictionPraph({ title, subheader, chart, ...o
         },
         labels,
         xaxis: {
-            type: 'datetime',
+            ...xaxisConfig,
         },
         yaxis: {
             labels: {

@@ -32,7 +32,7 @@ export default function PredictionForm({
     { name: "Personalizado", code: "personalizado" },
   ];
 
-  const { folder, checkFileName } = useFileContext();
+  const { folder, checkFileName, setGroupedData } = useFileContext();
 
   useEffect(() => {
     setDescriptions(["EQUIPO ADMINISTRACION CON BOMBA FREEGO + BOLSA X 1500 ML"]);
@@ -91,6 +91,28 @@ export default function PredictionForm({
     setCustomModels(newCustomModels);
   };
 
+
+  const groupByDescription = (res) => {
+    
+    const groupedData = {};
+  
+    res.forEach((item) => {
+      const description = item.historical_stats?.DESCRIPCION;
+  
+      if (!groupedData[description]) {
+        groupedData[description] = [];
+      }
+
+      groupedData[description].push(item);
+    });
+  
+   
+    
+    setGroupedData(groupedData)
+  };
+  
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Inicia la carga
@@ -118,7 +140,12 @@ export default function PredictionForm({
       });
 
       const predictions = await Promise.all(predictionsPromises);
+
       setPredictionData(predictions);
+
+      groupByDescription(predictions.map(prediction => prediction.evaluateModel));
+
+      
     } catch (error) {
       console.error("Error al obtener la predicción:", error);
     } finally {

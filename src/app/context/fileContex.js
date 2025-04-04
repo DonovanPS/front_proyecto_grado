@@ -10,9 +10,10 @@ export const FileProvider = ({ children }) => {
     const [checkFileName, setCheckFileName] = useState('');
     const [folder, setFolder] = useState(''); 
     const [update, setUpdate] = useState(false);
+    const [groupedData, setGroupedData] = useState({});
 
     return (
-        <FileContext.Provider value={{ checkFileName, setCheckFileName, folder, setFolder, update, setUpdate }}>
+        <FileContext.Provider value={{ checkFileName, setCheckFileName, folder, setFolder, update, setUpdate, groupedData, setGroupedData }}>
             {children}
         </FileContext.Provider>
     );
