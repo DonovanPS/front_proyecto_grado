@@ -19,13 +19,47 @@ export default function CorrelationsTable({
 
   const [statisticsModelsCV, setStatisticsModelsCV] = useState([]);
 
+  
+
   useEffect(() => {
-    console.log("groupedData actualizado:", groupedData);
-    console.log(
-      "ModelData actualizado:",
-      modelData?.historical_stats?.DESCRIPCION
-    );
-  }, [groupedData]);
+    console.log("statisticsModelsCV:", statisticsModelsCV);
+    console.log("modelData:", modelData);
+
+    console.log("naive:", modelData?.naive_model_metrics);
+   
+  }, [statisticsModelsCV]);
+
+
+  useEffect(() => {
+    if (modelData) {
+      console.log("modelData disponible:", modelData);
+
+    
+      const naive = {
+        training_metrics: {
+          ...modelData?.naive_model_metrics 
+        },
+        "historical_stats": {
+          "model": "Naive",
+        }
+      };
+
+    
+      setStatisticsModelsCV(prevState => [...prevState, naive]);
+    }
+  }, [modelData]); 
+
+
+  useEffect(() => {
+    console.log("El componente se ha montado");
+   
+    const fetchData = async () => {
+      const data = await obtenerModelData(); 
+      setModelData(data);
+    };
+
+    fetchData();
+  }, []);
 
   const showModelStats = (model) => {
     setModelData(model);
