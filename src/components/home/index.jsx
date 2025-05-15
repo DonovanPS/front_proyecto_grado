@@ -427,9 +427,7 @@ export default function IndexComponent() {
                   pruebas iterativas, asegurando precisión y capacidad para
                   anticipar cambios en la demanda.
                 </p>
-                <a href="#" className="btn btn-primary">
-                  Explorar Modelos
-                </a>
+            
               </div>
             </div>
           </div>

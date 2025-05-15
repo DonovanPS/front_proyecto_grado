@@ -49,7 +49,7 @@ export default function CorrelationsTable({
     }
   }, [modelData]); 
 
-
+/*
   useEffect(() => {
     console.log("El componente se ha montado");
    
@@ -60,7 +60,7 @@ export default function CorrelationsTable({
 
     fetchData();
   }, []);
-
+*/
   const showModelStats = (model) => {
     setModelData(model);
     setShowModal(true);
